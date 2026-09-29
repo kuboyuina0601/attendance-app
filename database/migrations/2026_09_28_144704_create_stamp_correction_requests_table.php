@@ -22,7 +22,7 @@ return new class extends Migration
             $table->time('new_clock_out')->nullable();
             $table->text('comment');
             //承認状況（承認待ち、承認済み）
-            $table->string('approval_status', 4)->default('承認待ち');
+            $table->string('approval_status', 20)->default('承認待ち');
             $table->timestamp('application_date');
             $table->timestamps();
         });
