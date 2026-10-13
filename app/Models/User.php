@@ -49,9 +49,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Attendance::class);
     }
-
-    public function stampCorrectionRequests()
-    {
-        return $this->hasMany(StampCorrectionRequest::class);
-    }
 }

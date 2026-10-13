@@ -12,9 +12,11 @@ return new class extends Migration {
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->restrictOnDelete();
             $table->date('work_date');
-            $table->time('clock_in')->nullable();
+            $table->time('clock_in');
             $table->time('clock_out')->nullable();
             $table->text('note')->nullable();
             $table->timestamps();
