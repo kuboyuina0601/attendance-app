@@ -32,7 +32,6 @@ class UserLoginRequest extends FormRequest
         return [
             'email.required' => 'メールアドレスを入力してください',
             'password.required' => 'パスワードを入力してください',
-            'password.auth' => 'ログイン情報が登録されていません',
         ];
     }
 }
