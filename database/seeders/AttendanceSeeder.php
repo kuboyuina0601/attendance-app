@@ -15,7 +15,7 @@ class AttendanceSeeder extends Seeder
      */
     public function run(): void
     {
-        $users = User::all();
+        $users = User::where('admin_flag', 0)->get();
 
         foreach ($users as $user) {
             $date = Carbon::today()->subDay();
