@@ -26,7 +26,7 @@ class StoreStampCorrectionRequest extends FormRequest
             'new_clock_out' => ['required', 'date_format:H:i', 'after:new_clock_in'],
             'new_break_in' => ['required', 'date_format:H:i', 'after:new_clock_in', 'before:new_clock_out'],
             'new_break_out' => ['required', 'date_format:H:i', 'before:new_clock_out'],
-            'note' => ['required', 'string', 'max:255'],
+            'comment' => ['required', 'string', 'max:255'],
         ];
     }
 
@@ -38,7 +38,7 @@ class StoreStampCorrectionRequest extends FormRequest
             'new_break_in.after' => '休憩時間が不適切な値です',
             'new_break_in.before' => '休憩時間が不適切な値です',
             'new_break_out.before' => '休憩時間もしくは退勤時間が不適切な値です',
-            'note.required' => '備考を記入してください',
+            'comment.required' => '備考を記入してください',
         ];
     }
 }

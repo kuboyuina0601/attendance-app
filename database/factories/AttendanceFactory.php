@@ -28,7 +28,6 @@ class AttendanceFactory extends Factory
             'work_date' => fake()->date(),
             'clock_in' => $clockIn->format('H:i:s'),
             'clock_out' => $clockOut->format('H:i:s'),
-            'note' => null,
         ];
     }
 }
