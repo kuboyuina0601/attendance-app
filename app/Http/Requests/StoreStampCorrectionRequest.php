@@ -11,7 +11,7 @@ class StoreStampCorrectionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,23 @@ class StoreStampCorrectionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'new_clock_in' => ['required', 'date_format:H:i', 'before:new_clock_out'],
+            'new_clock_out' => ['required', 'date_format:H:i', 'after:new_clock_in'],
+            'new_break_in' => ['required', 'date_format:H:i', 'after:new_clock_in', 'before:new_clock_out'],
+            'new_break_out' => ['required', 'date_format:H:i', 'before:new_clock_out'],
+            'note' => ['required', 'string', 'max:255'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'new_clock_in.before' => '出勤時間もしくは退勤時間が不適切な値です',
+            'new_clock_out.after' => '出勤時間もしくは退勤時間が不適切な値です',
+            'new_break_in.after' => '休憩時間が不適切な値です',
+            'new_break_in.before' => '休憩時間が不適切な値です',
+            'new_break_out.before' => '休憩時間もしくは退勤時間が不適切な値です',
+            'note.required' => '備考を記入してください',
         ];
     }
 }

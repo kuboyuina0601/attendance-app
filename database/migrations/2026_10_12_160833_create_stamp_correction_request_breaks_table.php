@@ -16,14 +16,13 @@ return new class extends Migration {
             //どの修正申請の休憩か
             $table->foreignId('stamp_correction_request_id')
                 ->constrained(
-                    'stamp_correction_requests',
-                    'id',
-                    'scrb_request_id_fk'
+                    table: 'stamp_correction_requests',
+                    indexName: 'scrb_request_fk'
                 );
 
             //修正希望の休憩時間
-            $table->time('break_start');
-            $table->time('break_end');
+            $table->time('new_break_in');
+            $table->time('new_break_out');
 
             $table->timestamps();
         });

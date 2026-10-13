@@ -11,8 +11,8 @@ class StampCorrectionRequestBreak extends Model
 
     protected $fillable = [
         'stamp_correction_request_id',
-        'break_start',
-        'break_end',
+        'new_break_in',
+        'new_break_out',
     ];
 
     public function stampCorrectionRequest()

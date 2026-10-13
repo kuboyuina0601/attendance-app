@@ -34,8 +34,8 @@ class AttendanceSeeder extends Seeder
 
                 AttendanceBreak::create([
                     'attendance_id' => $attendance->id,
-                    'break_start' => '12:00:00',
-                    'break_end' => '13:00:00',
+                    'break_in' => '12:00',
+                    'break_out' => '13:00',
                 ]);
 
                 $count++;

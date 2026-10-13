@@ -14,8 +14,8 @@ return new class extends Migration {
             $table->id();
             //どの勤怠に紐づく休憩かを示す
             $table->foreignId('attendance_id')->constrained('attendances');
-            $table->time('break_start');
-            $table->time('break_end')->nullable();
+            $table->time('break_in');
+            $table->time('break_out')->nullable();
             $table->timestamps();
         });
     }

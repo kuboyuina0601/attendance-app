@@ -24,8 +24,8 @@ class StampCorrectionRequestBreakFactory extends Factory
 
         return [
             'stamp_correction_request_id' => StampCorrectionRequest::factory(),
-            'break_start' => $breakStart->format('H:i:s'),
-            'break_end' => $breakEnd->format('H:i:s'),
+            'new_break_start' => $breakStart->format('H:i:s'),
+            'new_break_end' => $breakEnd->format('H:i:s'),
         ];
     }
 }
