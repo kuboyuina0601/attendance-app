@@ -1,4 +1,3 @@
-```php
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -31,6 +30,13 @@ Route::post('/admin/login', [
     'store',
 ])->middleware('throttle:login')
     ->name('admin.login.store');
+
+// 管理者：ログアウト処理
+Route::post('/admin/logout', [
+    AuthenticatedSessionController::class,
+    'destroy',
+])->middleware('auth')
+    ->name('admin.logout');
 
 // 一般ユーザー：会員登録画面
 Route::get('/register', function () {
