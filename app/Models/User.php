@@ -49,9 +49,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Attendance::class);
     }
-
-    public function getAdminStatusAttribute()
-    {
-        return $this->admin_flag;
-    }
 }
