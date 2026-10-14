@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminAttendanceController;
 use App\Http\Controllers\AdminStaffController;
 use App\Http\Controllers\AdminStaffAttendanceController;
 use App\Http\Controllers\AdminStampCorrectionRequestController;
+use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -21,6 +22,14 @@ Route::get('/login', function () {
 Route::get('/admin/login', function () {
     return view('admin.admin-login');
 })->name('admin.login');
+
+// 管理者：ログイン処理
+Route::post('/admin/login', [
+    AuthenticatedSessionController::class,
+    'store',
+])
+    ->middleware('throttle:login')
+    ->name('admin.login.store');
 
 // 一般ユーザー：会員登録画面
 Route::get('/register', function () {

@@ -21,7 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'admin_status',
+        'admin_flag',
     ];
 
     /**
@@ -42,7 +42,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
-        'admin_status' => 'boolean',
+        'admin_flag' => 'boolean',
     ];
 
     public function attendances()
