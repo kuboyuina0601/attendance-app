@@ -1,3 +1,4 @@
+```blade
 @extends('layouts.admin-app')
 
 @section('css')
@@ -9,8 +10,18 @@
         <div class="detail__header">
             <h1 class="content__header--item">勤怠詳細</h1>
         </div>
+
         <form class="form" action="{{ url('/admin/attendance/detail/' . $attendanceRecord['id']) }}" method="post">
             @csrf
+            {{-- 【追加】編集・閲覧専用の両方で休憩時間を使うため、条件分岐の外で定義 --}}
+            @php
+                $breaks = (isset($attendanceRecord['breaks']) && is_array($attendanceRecord['breaks']))
+                    ? $attendanceRecord['breaks'] : [];
+            @endphp
+
+            {{-- 【追加】承認待ちの申請がなければ編集フォームを表示 --}}
+            @if (!$attendanceRecord['application'])
+
                 <div class="form__content">
                     <div class="form__group">
                         <label class="form__header" for="name">名前</label>
@@ -19,6 +30,7 @@
                                 readonly>
                         </div>
                     </div>
+
                     <div class="form__group">
                         <label class="form__header">日付</label>
                         <div class="form__input-group">
@@ -52,10 +64,6 @@
                     </div>
 
                     {{-- 休憩は「休憩」「休憩1」「休憩2」…とセクションを分けて表示 --}}
-                    @php
-                        $breaks = (isset($attendanceRecord['breaks']) && is_array($attendanceRecord['breaks']))
-                            ? $attendanceRecord['breaks'] : [];
-                    @endphp
                     @foreach($breaks as $index => $break)
                         <div class="form__group">
                             <label class="form__header">{{ $index === 0 ? '休憩' : '休憩' . ($index + 1) }}</label>
@@ -67,6 +75,7 @@
                                     value="{{ $break['break_out'] ?? '' }}">
                             </div>
                         </div>
+
                         <div class="error-message">
                             <div></div>
                             <div class="error-message__item">
@@ -75,8 +84,10 @@
                             </div>
                         </div>
                     @endforeach
+
                     {{-- 新しい休憩を追加できるよう末尾に空欄を1つ用意 --}}
                     @php $newBreakIndex = count($breaks); @endphp
+
                     <div class="form__group">
                         <label class="form__header">{{ $newBreakIndex === 0 ? '休憩' : '休憩' . ($newBreakIndex + 1) }}</label>
                         <div class="form__input-group">
@@ -85,6 +96,7 @@
                             <input class="form__input" type="text" name="new_break_out[{{ $newBreakIndex }}]" value="">
                         </div>
                     </div>
+
                     <div class="error-message">
                         <div></div>
                         <div class="error-message__item">
@@ -99,6 +111,7 @@
                             <textarea class="form__textarea" name="comment" id="comment">{{ $attendanceRecord['comment'] }}</textarea>
                         </div>
                     </div>
+
                     <div class="error-message">
                         <div></div>
                         <div class="error-message__item">
@@ -112,6 +125,72 @@
                 <div class="form__button">
                     <button class="form__button--submit" type="submit">修正</button>
                 </div>
+
+            {{-- 【追加】承認待ちの申請がある場合は閲覧専用画面を表示 --}}
+            @else
+                <div class="form__content">
+                    {{-- 【追加】名前を閲覧専用で表示 --}}
+                    <div class="form__group">
+                        <label class="form__header">名前</label>
+                        <div class="form__input-group">
+                            <input class="form__input form__input--name readonly" type="text"
+                                value="{{ $user->name }}" readonly>
+                        </div>
+                    </div>
+
+                    {{-- 【追加】日付を閲覧専用で表示 --}}
+                    <div class="form__group">
+                        <label class="form__header">日付</label>
+                        <div class="form__input-group">
+                            <input class="form__input form__input--date readonly" type="text"
+                                value="{{ $attendanceRecord['year'] }}" readonly>
+                            <input class="form__input form__input--date readonly" type="text"
+                                value="{{ $attendanceRecord['date'] }}" readonly>
+                        </div>
+                    </div>
+
+                    {{-- 【追加】出勤・退勤を閲覧専用で表示 --}}
+                    <div class="form__group">
+                        <label class="form__header">出勤・退勤</label>
+                        <div class="form__input-group">
+                            <input class="form__input readonly" type="text"
+                                value="{{ $attendanceRecord['clock_in'] }}" readonly>
+                            <p>〜</p>
+                            <input class="form__input readonly" type="text"
+                                value="{{ $attendanceRecord['clock_out'] }}" readonly>
+                        </div>
+                    </div>
+
+                    {{-- 【追加】休憩時間を閲覧専用で表示 --}}
+                    @foreach($breaks as $index => $break)
+                        <div class="form__group">
+                            <label class="form__header">{{ $index === 0 ? '休憩' : '休憩' . ($index + 1) }}</label>
+                            <div class="form__input-group">
+                                <input class="form__input readonly" type="text"
+                                    value="{{ $break['break_in'] ?? '' }}" readonly>
+                                <p>〜</p>
+                                <input class="form__input readonly" type="text"
+                                    value="{{ $break['break_out'] ?? '' }}" readonly>
+                            </div>
+                        </div>
+                    @endforeach
+
+                    {{-- 【追加】備考を閲覧専用で表示 --}}
+                    <div class="form__group">
+                        <label class="form__header">備考</label>
+                        <div class="form__input-group">
+                            <textarea class="form__textarea readonly" readonly>{{ $attendanceRecord['comment'] }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- 【追加】承認待ちのため修正できないことを表示 --}}
+                <div class="form__button">
+                    <p class="readonly-message">※承認待ちのため修正はできません。</p>
+                </div>
+            {{-- 【追加】承認待ちによる表示切り替えを終了 --}}
+            @endif
         </form>
     </div>
 @endsection
+```

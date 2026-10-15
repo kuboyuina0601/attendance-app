@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\StampCorrectionRequest;
 
 class AdminAttendanceController extends Controller
 {
@@ -25,7 +26,7 @@ class AdminAttendanceController extends Controller
         $previousDay = $date->copy()->subDay()->format('Y-m-d');
         $nextDay = $date->copy()->addDay()->format('Y-m-d');
 
-        $users = User::where('admin_flag', false)
+        $users = User::where('admin_status', false)
             ->orderBy('id')
             ->get();
 
@@ -83,7 +84,11 @@ class AdminAttendanceController extends Controller
 
         $user = $attendance->user;
 
-        abort_if(!$user || $user->admin_flag, 404);
+        abort_if(!$user || $user->admin_status, 404);
+
+        $application = StampCorrectionRequest::where('attendance_id', $id)
+            ->where('approval_status', '承認待ち')
+            ->exists();
 
         $clockIn = $attendance->clock_in
             ? Carbon::parse($attendance->clock_in)->format('H:i')
@@ -116,6 +121,7 @@ class AdminAttendanceController extends Controller
             'clock_out' => $clockOut,
             'breaks' => $breaks,
             'comment' => '',
+            'application' => $application,
         ];
 
         return view('admin.admin-detail', compact(
@@ -133,7 +139,15 @@ class AdminAttendanceController extends Controller
             'attendanceBreaks',
         ])->findOrFail($id);
 
-        abort_if(!$attendance->user || $attendance->user->admin_flag, 404);
+        abort_if(!$attendance->user || $attendance->user->admin_status, 404);
+
+        $hasPendingApplication = StampCorrectionRequest::where('attendance_id', $id)
+            ->where('approval_status', '承認待ち')
+            ->exists();
+
+        if ($hasPendingApplication) {
+            return redirect('/admin/attendance/list');
+        }
 
         $validated = $request->validated();
 
@@ -191,9 +205,7 @@ class AdminAttendanceController extends Controller
                 ->delete();
         });
 
-        return redirect(
-            '/admin/attendance/detail/' . $id
-        )->with('success', '勤怠情報を修正しました');
+        return redirect('/admin/attendance/staff/' . $attendance->user_id);
     }
 
     private function formatDuration(int $seconds): string

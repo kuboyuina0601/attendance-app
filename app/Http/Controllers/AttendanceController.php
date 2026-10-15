@@ -237,10 +237,10 @@ class AttendanceController extends Controller
         ]);
 
         // 管理者は指定された勤怠を取得できる
-        if ($user->admin_flag) {
+        if ($user->admin_status) {
             $attendance = $attendanceQuery->findOrFail($id);
 
-            abort_if(!$attendance->user || $attendance->user->admin_flag, 404);
+            abort_if(!$attendance->user || $attendance->user->admin_status, 404);
 
             $breaks = $attendance->attendanceBreaks
                 ->map(function ($break) {
@@ -262,6 +262,8 @@ class AttendanceController extends Controller
                     : '',
                 'breaks' => $breaks,
                 'comment' => '',
+                'application' => $attendance->stampCorrectionRequests
+                    ->contains(fn($request) => $request->approval_status === '承認待ち'),
             ];
 
             return view('admin.admin-detail', [

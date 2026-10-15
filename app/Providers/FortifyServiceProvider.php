@@ -27,7 +27,6 @@ class FortifyServiceProvider extends ServiceProvider
             \Laravel\Fortify\Contracts\LoginResponse::class,
             \App\Http\Responses\LoginResponse::class
         );
-
         $this->app->singleton(
             \Laravel\Fortify\Contracts\LogoutResponse::class,
             \App\Http\Responses\LogoutResponse::class
@@ -51,10 +50,10 @@ class FortifyServiceProvider extends ServiceProvider
                 return null;
             }
             $isAdminLogin = $request->is('admin/login');
-            if ($isAdminLogin && !$user->admin_flag) {
+            if ($isAdminLogin && !$user->admin_status) {
                 return null;
             }
-            if (!$isAdminLogin && $user->admin_flag) {
+            if (!$isAdminLogin && $user->admin_status) {
                 return null;
             }
             return $user;

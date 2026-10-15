@@ -4,6 +4,8 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Http\Request;
 
 class Handler extends ExceptionHandler
 {
@@ -26,5 +28,17 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    //未認証時のリダイレクト先を振り分ける。
+    protected function unauthenticated(
+        $request,
+        AuthenticationException $exception
+    ) {
+        if ($request->is('admin/*')) {
+            return redirect()->guest(route('admin.login'));
+        }
+
+        return redirect()->guest(route('login'));
     }
 }

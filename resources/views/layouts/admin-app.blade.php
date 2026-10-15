@@ -20,7 +20,7 @@
             <a class="header__logo" href="/">
                 <img class="header__logo--img" src="{{ asset('images/logo.svg') }}" alt="logo">
             </a>
-            @if(Auth::check() && Auth::user()->admin_flag)
+            @if(Auth::check() && Auth::user()->admin_status)
                 <form action="/admin/logout" method="post">
                     @csrf
                     <nav class="inner__group">

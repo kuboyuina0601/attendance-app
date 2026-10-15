@@ -35,7 +35,7 @@ Route::post('/admin/login', [
 Route::post('/admin/logout', [
     AuthenticatedSessionController::class,
     'destroy',
-])->middleware('auth')
+])->middleware(['auth', 'admin'])
     ->name('admin.logout');
 
 // 一般ユーザー：会員登録画面
@@ -43,77 +43,80 @@ Route::get('/register', function () {
     return view('user.register');
 })->name('register');
 
-// 一般ユーザー：勤怠登録
-Route::get('/attendance', [AttendanceController::class, 'create'])
-    ->name('attendance.create');
+// 一般ユーザー用の認証・権限チェック
+Route::middleware(['auth', 'general.user'])->group(function () {
+    // 一般ユーザー：勤怠登録
+    Route::get('/attendance', [AttendanceController::class, 'create'])
+        ->name('attendance.create');
 
-Route::post('/attendance', [AttendanceController::class, 'store'])
-    ->name('attendance.store');
+    Route::post('/attendance', [AttendanceController::class, 'store'])
+        ->name('attendance.store');
 
-// 一般ユーザー：勤怠一覧
-Route::get('/attendance/list', [AttendanceController::class, 'index'])
-    ->name('attendance.index');
+    // 一般ユーザー：勤怠一覧
+    Route::get('/attendance/list', [AttendanceController::class, 'index'])
+        ->name('attendance.index');
 
-// 一般ユーザー：勤怠詳細
-Route::get('/attendance/{id}', [AttendanceController::class, 'show'])
-    ->whereNumber('id')
-    ->name('attendance.show');
+    // 一般ユーザー：勤怠詳細
+    Route::get('/attendance/{id}', [AttendanceController::class, 'show'])
+        ->whereNumber('id')
+        ->name('attendance.show');
 
-// 一般ユーザー：勤怠修正申請
-Route::post('/attendance/{id}', [StampCorrectionRequestController::class, 'store'])
-    ->whereNumber('id')
-    ->name('stamp-correction-request.store');
+    // 一般ユーザー：勤怠修正申請
+    Route::post('/attendance/{id}', [StampCorrectionRequestController::class, 'store'])
+        ->whereNumber('id')
+        ->name('stamp-correction-request.store');
 
-// 一般ユーザー：申請一覧
-Route::get(
-    '/stamp_correction_request/list',
-    [StampCorrectionRequestController::class, 'index']
-)->name('stamp-correction-request.index');
+    // 一般ユーザー：申請詳細
+    Route::get('/application/{id}', [StampCorrectionRequestController::class, 'show'])
+        ->whereNumber('id')
+        ->name('application.show');
+});
 
-// 一般ユーザー：申請詳細
-Route::get('/application/{id}', [StampCorrectionRequestController::class, 'show'])
-    ->whereNumber('id')
-    ->name('application.show');
+// 管理者用の認証・権限チェック
+Route::middleware(['auth', 'admin'])->group(function () {
+    // 管理者：勤怠一覧
+    Route::get('/admin/attendance/list', [AdminAttendanceController::class, 'index'])
+        ->name('admin.attendance.index');
 
-// 管理者：勤怠一覧
-Route::get('/admin/attendance/list', [AdminAttendanceController::class, 'index'])
-    ->name('admin.attendance.index');
+    // 管理者：勤怠詳細
+    Route::get('/admin/attendance/{id}', [AdminAttendanceController::class, 'show'])
+        ->whereNumber('id')
+        ->name('admin.attendance.show');
 
-// 管理者：勤怠詳細
-Route::get('/admin/attendance/detail/{id}', [AdminAttendanceController::class, 'show'])
-    ->whereNumber('id')
-    ->name('admin.attendance.show');
+    // 管理者：勤怠修正処理
+    Route::post('/admin/attendance/{id}', [AdminAttendanceController::class, 'update'])
+        ->whereNumber('id')
+        ->name('admin.attendance.update');
 
-// 管理者：勤怠修正処理
-Route::post('/admin/attendance/detail/{id}', [AdminAttendanceController::class, 'update'])
-    ->whereNumber('id')
-    ->name('admin.attendance.update');
+    // 管理者：スタッフ一覧
+    Route::get('/admin/staff/list', [AdminStaffController::class, 'index'])
+        ->name('admin.staff.index');
 
-// 管理者：スタッフ一覧
-Route::get('/admin/staff/list', [AdminStaffController::class, 'index'])
-    ->name('admin.staff.index');
+    // 管理者：スタッフ別勤怠一覧
+    Route::get('/admin/attendance/staff/{id}', [AdminStaffAttendanceController::class, 'index'])
+        ->whereNumber('id')
+        ->name('admin.staff.attendance.index');
 
-// 管理者：スタッフ別勤怠一覧
-Route::get('/admin/attendance/staff/{id}', [AdminStaffAttendanceController::class, 'index'])
-    ->whereNumber('id')
-    ->name('admin.staff.attendance.index');
+    // 管理者：修正申請承認画面
+    Route::get(
+        '/stamp_correction_request/approve/{attendance_correct_request_id}',
+        [AdminStampCorrectionRequestController::class, 'edit']
+    )->whereNumber('attendance_correct_request_id')
+        ->name('admin.stamp-correction-request.edit');
 
-// 管理者：修正申請一覧
-Route::get(
-    '/admin/stamp_correction_request/list',
-    [AdminStampCorrectionRequestController::class, 'index']
-)->name('admin.stamp-correction-request.index');
+    // 管理者：修正申請承認処理
+    Route::post(
+        '/stamp_correction_request/approve/{attendance_correct_request_id}',
+        [AdminStampCorrectionRequestController::class, 'update']
+    )->whereNumber('attendance_correct_request_id')
+        ->name('admin.stamp-correction-request.update');
+});
 
-// 管理者：修正申請承認画面
-Route::get(
-    '/stamp_correction_request/approve/{attendance_correct_request_id}',
-    [AdminStampCorrectionRequestController::class, 'edit']
-)->whereNumber('attendance_correct_request_id')
-    ->name('admin.stamp-correction-request.edit');
+//一般ユーザー・管理者共通の申請一覧
+Route::get('/stamp_correction_request/list', function () {
+    if (auth()->user()->admin_status) {
+        return app(AdminStampCorrectionRequestController::class)->index();
+    }
 
-// 管理者：修正申請承認処理
-Route::post(
-    '/stamp_correction_request/approve/{attendance_correct_request_id}',
-    [AdminStampCorrectionRequestController::class, 'update']
-)->whereNumber('attendance_correct_request_id')
-    ->name('admin.stamp-correction-request.update');
+    return app(StampCorrectionRequestController::class)->index();
+})->middleware('auth')->name('stamp-correction-request.index');

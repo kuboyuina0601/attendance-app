@@ -10,7 +10,7 @@ class LoginResponse implements LoginResponseContract
 {
     public function toResponse($request): RedirectResponse|JsonResponse
     {
-        if ($request->user()->admin_flag) {
+        if ($request->user()->admin_status) {
             return redirect('/admin/attendance/list');
         }
 

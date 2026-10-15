@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
                 'name' => 'ユーザー１(一般)',
                 'password' => 'password',
                 'email_verified_at' => now(),
-                'admin_flag' => 0,
+                'admin_status' => 0,
             ]
         );
 
@@ -28,7 +28,7 @@ class UserSeeder extends Seeder
                 'name' => 'ユーザー２(一般)',
                 'password' => 'password',
                 'email_verified_at' => now(),
-                'admin_flag' => 0,
+                'admin_status' => 0,
             ]
         );
 
@@ -38,7 +38,7 @@ class UserSeeder extends Seeder
                 'name' => 'ユーザー３(管理者)',
                 'password' => 'password',
                 'email_verified_at' => now(),
-                'admin_flag' => 1,
+                'admin_status' => 1,
             ]
         );
     }
