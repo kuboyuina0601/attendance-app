@@ -13,10 +13,17 @@ class AdminStampCorrectionRequestController extends Controller
         $applications = StampCorrectionRequest::with([
             'attendance.user',
             'stampCorrectionRequestBreaks',
-        ])->orderByDesc('created_at')->get();
-
+        ])
+            ->orderByRaw("
+            CASE
+                WHEN approval_status = '承認済み' THEN approved_at
+                ELSE created_at
+            END DESC
+        ")
+            ->get();
         foreach ($applications as $application) {
             $application->user = $application->attendance->user;
+
             $application->AttendanceRecord = (object) [
                 'date' => $application->attendance->work_date,
             ];
@@ -93,6 +100,7 @@ class AdminStampCorrectionRequestController extends Controller
 
             $application->update([
                 'approval_status' => '承認済み',
+                'approved_at' => now(),
             ]);
         });
 

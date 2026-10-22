@@ -120,7 +120,7 @@ class AdminAttendanceController extends Controller
             'clock_in' => $clockIn,
             'clock_out' => $clockOut,
             'breaks' => $breaks,
-            'comment' => '',
+            'comment' => $attendance->comment ?? '',
             'application' => $application,
         ];
 
@@ -146,7 +146,7 @@ class AdminAttendanceController extends Controller
             ->exists();
 
         if ($hasPendingApplication) {
-            return redirect('/admin/attendance/list');
+            return redirect('/admin/attendance/' . $attendance->id);
         }
 
         $validated = $request->validated();
@@ -159,6 +159,7 @@ class AdminAttendanceController extends Controller
             $attendance->update([
                 'clock_in' => $validated['new_clock_in'],
                 'clock_out' => $validated['new_clock_out'],
+                'comment' => $validated['comment'],
             ]);
 
             $breakIns = $validated['new_break_in'] ?? [];
@@ -205,7 +206,7 @@ class AdminAttendanceController extends Controller
                 ->delete();
         });
 
-        return redirect('/admin/attendance/staff/' . $attendance->user_id);
+        return redirect('/admin/attendance/' . $attendance->id);
     }
 
     private function formatDuration(int $seconds): string

@@ -56,16 +56,6 @@ Route::middleware(['auth', 'general.user'])->group(function () {
     Route::get('/attendance/list', [AttendanceController::class, 'index'])
         ->name('attendance.index');
 
-    // 一般ユーザー：勤怠詳細
-    Route::get('/attendance/{id}', [AttendanceController::class, 'show'])
-        ->whereNumber('id')
-        ->name('attendance.show');
-
-    // 一般ユーザー：勤怠修正申請
-    Route::post('/attendance/{id}', [StampCorrectionRequestController::class, 'store'])
-        ->whereNumber('id')
-        ->name('stamp-correction-request.store');
-
     // 一般ユーザー：申請詳細
     Route::get('/application/{id}', [StampCorrectionRequestController::class, 'show'])
         ->whereNumber('id')
@@ -83,7 +73,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         ->whereNumber('id')
         ->name('admin.attendance.show');
 
-    // 管理者：勤怠修正処理
+    // 管理者：勤怠修正処理（管理者用URLからの送信にも対応）
     Route::post('/admin/attendance/{id}', [AdminAttendanceController::class, 'update'])
         ->whereNumber('id')
         ->name('admin.attendance.update');
@@ -112,11 +102,46 @@ Route::middleware(['auth', 'admin'])->group(function () {
         ->name('admin.stamp-correction-request.update');
 });
 
-//一般ユーザー・管理者共通の申請一覧
+// 勤怠詳細：ログインユーザーの権限に応じて表示先を振り分ける
+Route::get('/attendance/{id}', function ($id) {
+    $user = auth()->user();
+
+    // 管理者は管理者用の勤怠詳細へ移動
+    if ($user->admin_status) {
+        return redirect('/admin/attendance/' . $id);
+    }
+
+    // 一般ユーザーは一般ユーザー用の勤怠詳細を表示
+    return app(AttendanceController::class)->show($id);
+})->middleware('auth')
+    ->whereNumber('id')
+    ->name('attendance.show');
+
+// 勤怠修正：ログインユーザーの権限に応じて処理を振り分ける
+Route::post('/attendance/{id}', function ($id) {
+    $user = auth()->user();
+
+    if ($user->admin_status) {
+        return app()->call(
+            [app(AdminAttendanceController::class), 'update'],
+            ['id' => $id]
+        );
+    }
+
+    return app()->call(
+        [StampCorrectionRequestController::class, 'store'],
+        ['id' => $id]
+    );
+})->middleware('auth')
+    ->whereNumber('id')
+    ->name('attendance.update');
+
+// 一般ユーザー・管理者共通の申請一覧
 Route::get('/stamp_correction_request/list', function () {
     if (auth()->user()->admin_status) {
         return app(AdminStampCorrectionRequestController::class)->index();
     }
 
     return app(StampCorrectionRequestController::class)->index();
-})->middleware('auth')->name('stamp-correction-request.index');
+})->middleware('auth')
+    ->name('stamp-correction-request.index');

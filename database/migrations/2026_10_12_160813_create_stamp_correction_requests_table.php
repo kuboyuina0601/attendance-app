@@ -17,10 +17,11 @@ return new class extends Migration {
             //修正希望の勤怠情報
             $table->time('new_clock_in');
             $table->time('new_clock_out');
-            $table->text('comment');
+            $table->string('comment', 255);
+            $table->date('application_date');
             //承認状況（承認待ち、承認済み）
             $table->enum('approval_status', ['承認待ち', '承認済み'])->default('承認待ち');
-            $table->date('application_date');
+            $table->datetime('approved_at')->nullable();
             $table->timestamps();
         });
     }

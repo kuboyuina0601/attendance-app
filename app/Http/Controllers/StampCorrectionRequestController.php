@@ -134,7 +134,9 @@ class StampCorrectionRequestController extends Controller
             'clock_out' => substr((string) $application->new_clock_out, 0, 5),
             'breaks' => $breaks,
             'comment' => $application->comment,
-            'application' => $application,
+            'application' => $application->approval_status === '承認待ち'
+                ? $application
+                : null,
         ];
 
         return view('user.user-detail', compact('user', 'data'));

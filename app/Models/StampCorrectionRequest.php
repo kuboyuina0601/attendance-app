@@ -14,12 +14,14 @@ class StampCorrectionRequest extends Model
         'new_clock_in',
         'new_clock_out',
         'comment',
-        'approval_status',
         'application_date',
+        'approval_status',
+        'approved_at',
     ];
 
     protected $casts = [
         'application_date' => 'date',
+        'approved_at' => 'datetime',
     ];
 
     public function attendance()
