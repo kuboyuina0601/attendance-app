@@ -126,12 +126,12 @@ Route::post('/attendance/{id}', function ($id) {
             [app(AdminAttendanceController::class), 'update'],
             ['id' => $id]
         );
+    }else{
+        return app()->call(
+            [app(StampCorrectionRequestController::class), 'store'],
+            ['id' => $id]
+        );
     }
-
-    return app()->call(
-        [StampCorrectionRequestController::class, 'store'],
-        ['id' => $id]
-    );
 })->middleware('auth')
     ->whereNumber('id')
     ->name('attendance.update');
