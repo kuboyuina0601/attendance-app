@@ -24,8 +24,8 @@ class AttendanceBreakFactory extends Factory
 
         return [
             'attendance_id' => Attendance::factory(),
-            'break_start' => $breakStart->format('H:i:s'),
-            'break_end' => $breakEnd->format('H:i:s'),
+            'break_in' => $breakStart->format('H:i:s'),
+            'break_out' => $breakEnd->format('H:i:s'),
         ];
     }
 }

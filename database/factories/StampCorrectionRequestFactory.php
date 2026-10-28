@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Attendance;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,14 +23,13 @@ class StampCorrectionRequestFactory extends Factory
             ->addHours(fake()->numberBetween(8, 10));
 
         return [
-            'user_id' => User::factory(),
             'attendance_id' => Attendance::factory(),
-            'new_date' => fake()->date(),
             'new_clock_in' => $newClockIn->format('H:i:s'),
             'new_clock_out' => $newClockOut->format('H:i:s'),
             'comment' => fake()->sentence(),
             'approval_status' => '承認待ち',
-            'application_date' => now(),
+            'application_date' => now()->toDateString(),
+            'approved_at' => null,
         ];
     }
 }
