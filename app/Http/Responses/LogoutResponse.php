@@ -11,9 +11,9 @@ class LogoutResponse implements LogoutResponseContract
     public function toResponse($request): RedirectResponse
     {
         if ($request->is('admin/logout')) {
-            return redirect('/admin/login');
+            return redirect()->route('admin.login');
         }
 
-        return redirect('/login');
+        return redirect()->route('login');
     }
 }

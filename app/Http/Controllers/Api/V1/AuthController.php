@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+
+class AuthController extends Controller
+{
+    public function login(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+        ], [
+            'email.required' => 'メールアドレスは必須です。',
+            'email.email' => '正しいメールアドレスを入力してください。',
+            'password.required' => 'パスワードは必須です。',
+        ]);
+
+        $user = User::where('email', $validated['email'])->first();
+
+        if (!$user || !Hash::check($validated['password'], $user->password)) {
+            return response()->json([
+                'message' => 'メールアドレスまたはパスワードが正しくありません。',
+            ], 401);
+        }
+
+        $token = $user->createToken('attendance-api')->plainTextToken;
+
+        return response()->json([
+            'message' => 'ログインしました。',
+            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
+        ]);
+    }
+}

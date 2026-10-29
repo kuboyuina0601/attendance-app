@@ -226,7 +226,6 @@ class AttendanceController extends Controller
         );
     }
 
-
     public function show($id)
     {
         $user = auth()->user();
@@ -247,8 +246,12 @@ class AttendanceController extends Controller
             $breaks = $application->stampCorrectionRequestBreaks
                 ->map(function ($break) {
                     return [
-                        'break_in' => $break->new_break_in,
-                        'break_out' => $break->new_break_out,
+                        'break_in' => $break->new_break_in
+                            ? substr((string) $break->new_break_in, 0, 5)
+                            : '',
+                        'break_out' => $break->new_break_out
+                            ? substr((string) $break->new_break_out, 0, 5)
+                            : '',
                     ];
                 })
                 ->toArray();
@@ -260,8 +263,12 @@ class AttendanceController extends Controller
             $breaks = $attendance->attendanceBreaks
                 ->map(function ($break) {
                     return [
-                        'break_in' => $break->break_in,
-                        'break_out' => $break->break_out,
+                        'break_in' => $break->break_in
+                            ? substr((string) $break->break_in, 0, 5)
+                            : '',
+                        'break_out' => $break->break_out
+                            ? substr((string) $break->break_out, 0, 5)
+                            : '',
                     ];
                 })
                 ->toArray();
@@ -275,8 +282,8 @@ class AttendanceController extends Controller
             'id' => $attendance->id,
             'year' => $attendance->work_date->format('Y年'),
             'date' => $attendance->work_date->format('n月j日'),
-            'clock_in' => $clockIn ? substr($clockIn, 0, 5) : '',
-            'clock_out' => $clockOut ? substr($clockOut, 0, 5) : '',
+            'clock_in' => $clockIn ? substr((string) $clockIn, 0, 5) : '',
+            'clock_out' => $clockOut ? substr((string) $clockOut, 0, 5) : '',
             'breaks' => $breaks,
             'comment' => $comment ?? '',
             'application' => $application,
@@ -284,5 +291,4 @@ class AttendanceController extends Controller
 
         return view('user.user-detail', compact('user', 'data'));
     }
-
 }
