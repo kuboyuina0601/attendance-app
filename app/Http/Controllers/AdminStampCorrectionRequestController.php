@@ -15,11 +15,21 @@ class AdminStampCorrectionRequestController extends Controller
             'stampCorrectionRequestBreaks',
         ])
             ->orderByRaw("
-            CASE
-                WHEN approval_status = '承認済み' THEN approved_at
-                ELSE created_at
-            END DESC
-        ")
+                CASE
+                    WHEN approval_status = '承認待ち' THEN 0
+                    ELSE 1
+                END ASC
+            ")
+            ->orderByRaw("
+                CASE
+                    WHEN approval_status = '承認待ち' THEN created_at
+                END ASC
+            ")
+            ->orderByRaw("
+                CASE
+                    WHEN approval_status = '承認済み' THEN approved_at
+                END DESC
+            ")
             ->get();
         foreach ($applications as $application) {
             $application->user = $application->attendance->user;

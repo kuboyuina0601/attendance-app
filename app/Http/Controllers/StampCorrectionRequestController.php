@@ -81,7 +81,22 @@ class StampCorrectionRequestController extends Controller
             ->whereHas('attendance', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
-            ->orderByDesc('created_at')
+            ->orderByRaw("
+                CASE
+                    WHEN approval_status = '承認待ち' THEN 0
+                    ELSE 1
+                END ASC
+            ")
+            ->orderByRaw("
+                CASE
+                    WHEN approval_status = '承認待ち' THEN created_at
+                END ASC
+            ")
+            ->orderByRaw("
+                CASE
+                    WHEN approval_status = '承認済み' THEN approved_at
+                END DESC
+            ")
             ->get();
 
         $formattedApplications = $applications->map(function ($application) {

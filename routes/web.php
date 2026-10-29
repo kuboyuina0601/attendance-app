@@ -44,7 +44,7 @@ Route::get('/register', function () {
 })->name('register');
 
 // 一般ユーザー用の認証・権限チェック
-Route::middleware(['auth', 'general.user'])->group(function () {
+Route::middleware(['auth', 'verified', 'general.user'])->group(function () {
     // 一般ユーザー：勤怠登録画面
     Route::get('/attendance', [
         AttendanceController::class,
