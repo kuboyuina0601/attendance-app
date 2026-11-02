@@ -9,10 +9,6 @@ use App\Http\Controllers\AdminStaffAttendanceController;
 use App\Http\Controllers\AdminStampCorrectionRequestController;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
-// トップページ
-Route::get('/', function () {
-    return view('welcome');
-});
 
 // 一般ユーザー：ログイン画面
 Route::get('/login', function () {
