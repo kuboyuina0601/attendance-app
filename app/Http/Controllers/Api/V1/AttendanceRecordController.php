@@ -5,18 +5,21 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreAttendanceRecordRequest;
 use App\Http\Requests\Api\V1\UpdateAttendanceRecordRequest;
+use App\Http\Requests\Api\V1\IndexAttendanceRecordRequest;
 use App\Http\Resources\Api\V1\AttendanceRecordResource;
 use App\Models\Attendance;
-use App\Http\Requests\Api\V1\IndexAttendanceRecordRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class AttendanceRecordController extends Controller
 {
     /**
      * 勤怠一覧を取得する
      */
-
-    public function index(IndexAttendanceRecordRequest $request)
-    {
+    public function index(
+        IndexAttendanceRecordRequest $request
+    ): AnonymousResourceCollection {
         $query = Attendance::with('user', 'attendanceBreaks');
 
         if ($request->filled('user_id')) {
@@ -48,8 +51,9 @@ class AttendanceRecordController extends Controller
     /**
      * 勤怠詳細を取得する
      */
-    public function show(Attendance $attendanceRecord)
-    {
+    public function show(
+        Attendance $attendanceRecord
+    ): AttendanceRecordResource {
         $attendanceRecord->load([
             'user',
             'attendanceBreaks',
@@ -62,8 +66,9 @@ class AttendanceRecordController extends Controller
     /**
      * 勤怠を新規登録する
      */
-    public function store(StoreAttendanceRecordRequest $request)
-    {
+    public function store(
+        StoreAttendanceRecordRequest $request
+    ): JsonResponse {
         $validated = $request->validated();
 
         $attendance = $request->user()->attendances()->create([
@@ -89,7 +94,7 @@ class AttendanceRecordController extends Controller
     public function update(
         UpdateAttendanceRecordRequest $request,
         Attendance $attendanceRecord
-    ) {
+    ): AttendanceRecordResource {
         $this->authorize('update', $attendanceRecord);
 
         $validated = $request->validated();
@@ -112,8 +117,9 @@ class AttendanceRecordController extends Controller
     /**
      * 勤怠を削除する
      */
-    public function destroy(Attendance $attendanceRecord)
-    {
+    public function destroy(
+        Attendance $attendanceRecord
+    ): Response {
         $this->authorize('delete', $attendanceRecord);
 
         $attendanceRecord->delete();

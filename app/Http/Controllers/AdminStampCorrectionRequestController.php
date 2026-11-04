@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\StampCorrectionRequest;
+use App\Models\StampCorrectionRequestBreak;
 use App\Models\AttendanceBreak;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 
 class AdminStampCorrectionRequestController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $applications = StampCorrectionRequest::with([
             'attendance.user',
@@ -31,6 +34,7 @@ class AdminStampCorrectionRequestController extends Controller
                 END DESC
             ")
             ->get();
+
         foreach ($applications as $application) {
             $application->user = $application->attendance->user;
 
@@ -42,7 +46,7 @@ class AdminStampCorrectionRequestController extends Controller
         return view('admin.admin-application-list', compact('applications'));
     }
 
-    public function show($stamp_correction_request_id)
+    public function show(int $stamp_correction_request_id): View
     {
         $application = StampCorrectionRequest::with([
             'attendance.user',
@@ -57,12 +61,14 @@ class AdminStampCorrectionRequestController extends Controller
 
         $application->setRelation(
             'proposalBreaks',
-            $application->stampCorrectionRequestBreaks->map(function ($break) {
-                return (object) [
-                    'break_in' => $break->new_break_in,
-                    'break_out' => $break->new_break_out,
-                ];
-            })
+            $application->stampCorrectionRequestBreaks->map(
+                function (StampCorrectionRequestBreak $break): object {
+                    return (object) [
+                        'break_in' => $break->new_break_in,
+                        'break_out' => $break->new_break_out,
+                    ];
+                }
+            )
         );
 
         return view('admin.admin-application-detail', compact(
@@ -71,8 +77,9 @@ class AdminStampCorrectionRequestController extends Controller
         ));
     }
 
-    public function update($stamp_correction_request_id)
-    {
+    public function update(
+        int $stamp_correction_request_id
+    ): RedirectResponse {
         $application = StampCorrectionRequest::with('stampCorrectionRequestBreaks')
             ->findOrFail($stamp_correction_request_id);
 
@@ -80,7 +87,7 @@ class AdminStampCorrectionRequestController extends Controller
             return redirect()->back();
         }
 
-        DB::transaction(function () use ($application) {
+        DB::transaction(function () use ($application): void {
             $application = StampCorrectionRequest::whereKey($application->id)
                 ->lockForUpdate()
                 ->firstOrFail();

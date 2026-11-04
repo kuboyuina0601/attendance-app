@@ -6,11 +6,12 @@ use App\Models\Attendance;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AdminStaffAttendanceController extends Controller
 {
-    public function index(Request $request, $id)
+    public function index(Request $request, int $id): View
     {
         $request->validate([
             'date' => ['nullable', 'date_format:Y-m'],
@@ -36,7 +37,7 @@ class AdminStaffAttendanceController extends Controller
             ])
             ->get()
             ->keyBy(
-                fn($attendance) => $attendance->work_date->format('Y-m-d')
+                fn(Attendance $attendance): string => $attendance->work_date->format('Y-m-d')
             );
 
         $formattedAttendanceRecords = collect();
@@ -132,7 +133,7 @@ class AdminStaffAttendanceController extends Controller
             ])
             ->get()
             ->keyBy(
-                fn($attendance) => $attendance->work_date->format('Y-m-d')
+                fn(Attendance $attendance): string => $attendance->work_date->format('Y-m-d')
             );
 
         $fileName = sprintf(
@@ -143,7 +144,7 @@ class AdminStaffAttendanceController extends Controller
         );
 
         return response()->streamDownload(
-            function () use ($startOfMonth, $endOfMonth, $attendanceRecords) {
+            function () use ($startOfMonth, $endOfMonth, $attendanceRecords): void {
                 $handle = fopen('php://output', 'w');
 
                 // Excelで日本語が文字化けしにくいようにBOMを付ける

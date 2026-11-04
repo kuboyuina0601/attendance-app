@@ -6,13 +6,18 @@ use App\Http\Requests\StoreStampCorrectionRequest;
 use App\Models\Attendance;
 use App\Models\StampCorrectionRequest;
 use App\Models\StampCorrectionRequestBreak;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\Builder;
 
 class StampCorrectionRequestController extends Controller
 {
-    public function store(StoreStampCorrectionRequest $request, $id)
-    {
+    public function store(
+        StoreStampCorrectionRequest $request,
+        int $id
+    ): RedirectResponse {
         // ログイン中の本人の勤怠だけ申請対象にする
         $attendance = Attendance::where('user_id', $request->user()->id)
             ->findOrFail($id);
@@ -33,7 +38,7 @@ class StampCorrectionRequestController extends Controller
 
         $validated = $request->validated();
 
-        DB::transaction(function () use ($attendance, $validated) {
+        DB::transaction(function () use ($attendance, $validated): void {
             $application = StampCorrectionRequest::create([
                 'attendance_id' => $attendance->id,
                 'new_clock_in' => $validated['new_clock_in'],
@@ -70,7 +75,7 @@ class StampCorrectionRequestController extends Controller
         return redirect()->back();
     }
 
-    public function index()
+    public function index(): View
     {
         $user = auth()->user();
 
@@ -78,9 +83,12 @@ class StampCorrectionRequestController extends Controller
             'attendance.user',
             'stampCorrectionRequestBreaks',
         ])
-            ->whereHas('attendance', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })
+            ->whereHas(
+                'attendance',
+                function (Builder $query) use ($user): void {
+                    $query->where('user_id', $user->id);
+                }
+            )
             ->orderByRaw("
                 CASE
                     WHEN approval_status = '承認待ち' THEN 0
@@ -99,15 +107,17 @@ class StampCorrectionRequestController extends Controller
             ")
             ->get();
 
-        $formattedApplications = $applications->map(function ($application) {
-            return [
-                'id' => $application->id,
-                'approval_status' => $application->approval_status,
-                'date' => $application->attendance->work_date->format('Y/m/d'),
-                'comment' => $application->comment,
-                'application_date' => $application->application_date->format('Y/m/d'),
-            ];
-        });
+        $formattedApplications = $applications->map(
+            function (StampCorrectionRequest $application): array {
+                return [
+                    'id' => $application->id,
+                    'approval_status' => $application->approval_status,
+                    'date' => $application->attendance->work_date->format('Y/m/d'),
+                    'comment' => $application->comment,
+                    'application_date' => $application->application_date->format('Y/m/d'),
+                ];
+            }
+        );
 
         return view(
             'user.user-application-list',
@@ -115,7 +125,7 @@ class StampCorrectionRequestController extends Controller
         );
     }
 
-    public function show($id)
+    public function show(int $id): View
     {
         $user = auth()->user();
 
@@ -124,15 +134,18 @@ class StampCorrectionRequestController extends Controller
             'attendance.attendanceBreaks',
             'stampCorrectionRequestBreaks',
         ])
-            ->whereHas('attendance', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })
+            ->whereHas(
+                'attendance',
+                function (Builder $query) use ($user): void {
+                    $query->where('user_id', $user->id);
+                }
+            )
             ->findOrFail($id);
 
         $attendance = $application->attendance;
 
         $breaks = $application->stampCorrectionRequestBreaks
-            ->map(function ($break) {
+            ->map(function (StampCorrectionRequestBreak $break): array {
                 return [
                     'break_in' => substr((string) $break->new_break_in, 0, 5),
                     'break_out' => substr((string) $break->new_break_out, 0, 5),

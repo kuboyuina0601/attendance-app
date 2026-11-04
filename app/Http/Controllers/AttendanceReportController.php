@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use Carbon\Carbon;
+use Illuminate\Contracts\View\View;
 
 class AttendanceReportController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $user = auth()->user();
 
@@ -145,4 +146,3 @@ class AttendanceReportController extends Controller
         ]);
     }
 }
-?>

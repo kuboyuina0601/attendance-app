@@ -8,12 +8,14 @@ use App\Models\AttendanceBreak;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use App\Models\StampCorrectionRequest;
 
 class AdminAttendanceController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $request->validate([
             'date' => ['nullable', 'date'],
@@ -75,7 +77,7 @@ class AdminAttendanceController extends Controller
         ));
     }
 
-    public function show($id)
+    public function show(int $id): View
     {
         $attendance = Attendance::with([
             'user',
@@ -99,7 +101,7 @@ class AdminAttendanceController extends Controller
             : '';
 
         $breaks = $attendance->attendanceBreaks
-            ->map(function ($break) {
+            ->map(function (AttendanceBreak $break): array {
                 return [
                     'id' => $break->id,
                     'break_in' => $break->break_in
@@ -132,8 +134,8 @@ class AdminAttendanceController extends Controller
 
     public function update(
         UpdateAdminAttendanceRequest $request,
-        $id
-    ) {
+        int $id
+    ): RedirectResponse {
         $attendance = Attendance::with([
             'user',
             'attendanceBreaks',
@@ -151,7 +153,7 @@ class AdminAttendanceController extends Controller
 
         $validated = $request->validated();
 
-        DB::transaction(function () use ($attendance, $validated) {
+        DB::transaction(function () use ($attendance, $validated): void {
             $attendance = Attendance::whereKey($attendance->id)
                 ->lockForUpdate()
                 ->firstOrFail();

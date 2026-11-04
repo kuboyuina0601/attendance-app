@@ -3,15 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use App\Models\Attendance;
 use App\Models\AttendanceBreak;
+use App\Models\StampCorrectionRequestBreak;
 use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
-    public function create()
+    public function create(): View
     {
         $user = auth()->user();
 
@@ -26,7 +29,7 @@ class AttendanceController extends Controller
             $user->attendance_status = '退勤済';
         } elseif (
             $attendance->attendanceBreaks->contains(
-                fn($break) => $break->break_out === null
+                fn(AttendanceBreak $break): bool => $break->break_out === null
             )
         ) {
             $user->attendance_status = '休憩中';
@@ -43,7 +46,7 @@ class AttendanceController extends Controller
         );
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'action' => ['required', 'in:clock_in,clock_out,break_in,break_out'],
@@ -53,7 +56,7 @@ class AttendanceController extends Controller
         $action = $request->input('action');
         $now = now();
 
-        DB::transaction(function () use ($user, $action, $now) {
+        DB::transaction(function () use ($user, $action, $now): void {
             $attendance = Attendance::where('user_id', $user->id)
                 ->whereDate('work_date', $now->toDateString())
                 ->lockForUpdate()
@@ -137,7 +140,7 @@ class AttendanceController extends Controller
         return redirect()->back();
     }
 
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $request->validate([
             'date' => ['nullable', 'date_format:Y-m'],
@@ -160,7 +163,9 @@ class AttendanceController extends Controller
                 $endOfMonth->toDateString(),
             ])
             ->get()
-            ->keyBy(fn($attendance) => $attendance->work_date->format('Y-m-d'));
+            ->keyBy(
+                fn(Attendance $attendance): string => $attendance->work_date->format('Y-m-d')
+            );
 
         $formattedAttendanceRecords = collect();
 
@@ -226,7 +231,7 @@ class AttendanceController extends Controller
         );
     }
 
-    public function show($id)
+    public function show(int $id): View
     {
         $user = auth()->user();
 
@@ -244,7 +249,7 @@ class AttendanceController extends Controller
 
         if ($application) {
             $breaks = $application->stampCorrectionRequestBreaks
-                ->map(function ($break) {
+                ->map(function (StampCorrectionRequestBreak $break): array {
                     return [
                         'break_in' => $break->new_break_in
                             ? substr((string) $break->new_break_in, 0, 5)
@@ -261,7 +266,7 @@ class AttendanceController extends Controller
             $comment = $application->comment;
         } else {
             $breaks = $attendance->attendanceBreaks
-                ->map(function ($break) {
+                ->map(function (AttendanceBreak $break): array {
                     return [
                         'break_in' => $break->break_in
                             ? substr((string) $break->break_in, 0, 5)
