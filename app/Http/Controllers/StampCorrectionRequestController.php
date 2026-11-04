@@ -58,25 +58,27 @@ class StampCorrectionRequestController extends Controller
             $breakIns = $validated['new_break_in'] ?? [];
             $breakOuts = $validated['new_break_out'] ?? [];
 
-            foreach ($breakIns as $index => $breakIn) {
-                $breakOut = $breakOuts[$index] ?? null;
+            collect($breakIns)->each(
+                function ($breakIn, $index) use ($breakOuts, $application): void {
+                    $breakOut = $breakOuts[$index] ?? null;
 
-                if (blank($breakIn) && blank($breakOut)) {
-                    continue;
-                }
+                    if (blank($breakIn) && blank($breakOut)) {
+                        return;
+                    }
 
-                if (blank($breakIn) || blank($breakOut)) {
-                    throw ValidationException::withMessages([
-                        "new_break_in.$index" => '休憩時間を正しく入力してください。',
+                    if (blank($breakIn) || blank($breakOut)) {
+                        throw ValidationException::withMessages([
+                            "new_break_in.$index" => '休憩時間を正しく入力してください。',
+                        ]);
+                    }
+
+                    StampCorrectionRequestBreak::create([
+                        'stamp_correction_request_id' => $application->id,
+                        'new_break_in' => $breakIn,
+                        'new_break_out' => $breakOut,
                     ]);
                 }
-
-                StampCorrectionRequestBreak::create([
-                    'stamp_correction_request_id' => $application->id,
-                    'new_break_in' => $breakIn,
-                    'new_break_out' => $breakOut,
-                ]);
-            }
+            );
         });
 
         return redirect()->back();
@@ -91,10 +93,7 @@ class StampCorrectionRequestController extends Controller
     {
         $user = auth()->user();
 
-        $applications = StampCorrectionRequest::with([
-            'attendance.user',
-            'stampCorrectionRequestBreaks',
-        ])
+        $applications = StampCorrectionRequest::with('attendance')
             ->whereHas(
                 'attendance',
                 function (Builder $query) use ($user): void {
@@ -149,7 +148,7 @@ class StampCorrectionRequestController extends Controller
 
         // ログイン中の本人の申請だけ取得する
         $application = StampCorrectionRequest::with([
-            'attendance.attendanceBreaks',
+            'attendance',
             'stampCorrectionRequestBreaks',
         ])
             ->whereHas(

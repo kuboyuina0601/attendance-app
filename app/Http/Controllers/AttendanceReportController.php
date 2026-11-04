@@ -40,7 +40,7 @@ class AttendanceReportController extends Controller
         // 月次推移を初期化（データがない月も0で表示）
         $monthlyTrend = [];
 
-        for ($i = 0; $i < 6; $i++) {
+        collect(range(0, 5))->each(function (int $i) use ($startMonth, &$monthlyTrend): void {
             $month = $startMonth->copy()->addMonths($i);
             $key = $month->format('Y-m');
 
@@ -49,33 +49,34 @@ class AttendanceReportController extends Controller
                 'work_minutes' => 0,
                 'overtime_minutes' => 0,
             ];
-        }
+        });
 
         // 今月の異常検知回数
         $lateCount = 0;
         $earlyLeaveCount = 0;
         $longWorkCount = 0;
 
-        foreach ($attendances as $attendance) {
+        $attendances->each(function (Attendance $attendance) use ($currentMonth, &$totalWorkMinutes, &$totalOvertimeMinutes, &$workedDays, &$monthlyTrend, &$lateCount, &$earlyLeaveCount, &$longWorkCount): void {
             // 出勤・退勤の両方が記録された勤怠だけを集計
             if (!$attendance->clock_in || !$attendance->clock_out) {
-                continue;
+                return;
             }
 
             $clockIn = Carbon::parse($attendance->clock_in);
             $clockOut = Carbon::parse($attendance->clock_out);
 
             // 休憩時間の合計（秒）
-            $breakSeconds = 0;
+            $breakSeconds = $attendance->attendanceBreaks
+                ->sum(function ($break): int {
+                    if ($break->break_in && $break->break_out) {
+                        $breakIn = Carbon::parse($break->break_in);
+                        $breakOut = Carbon::parse($break->break_out);
 
-            foreach ($attendance->attendanceBreaks as $break) {
-                if ($break->break_in && $break->break_out) {
-                    $breakIn = Carbon::parse($break->break_in);
-                    $breakOut = Carbon::parse($break->break_out);
+                        return $breakOut->diffInSeconds($breakIn);
+                    }
 
-                    $breakSeconds += $breakOut->diffInSeconds($breakIn);
-                }
-            }
+                    return 0;
+                });
 
             // 実労働時間（秒）
             $workSeconds = max(
@@ -122,7 +123,7 @@ class AttendanceReportController extends Controller
                     $longWorkCount++;
                 }
             }
-        }
+        });
 
         // 1日あたりの平均労働時間（分）
         $averageWorkMinutes = $workedDays > 0

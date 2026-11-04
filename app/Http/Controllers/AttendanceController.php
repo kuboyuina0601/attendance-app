@@ -11,6 +11,7 @@ use App\Models\Attendance;
 use App\Models\AttendanceBreak;
 use App\Models\StampCorrectionRequestBreak;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 
 class AttendanceController extends Controller
 {
@@ -184,26 +185,25 @@ class AttendanceController extends Controller
                 fn(Attendance $attendance): string => $attendance->work_date->format('Y-m-d')
             );
 
-        $formattedAttendanceRecords = collect();
-
-        for (
-            $day = $startOfMonth->copy();
-            $day->lte($endOfMonth);
-            $day->addDay()
-        ) {
+        $formattedAttendanceRecords = collect(
+            CarbonPeriod::create($startOfMonth, $endOfMonth)
+        )->map(function (Carbon $day) use ($attendanceRecords): array {
             $attendance = $attendanceRecords->get($day->format('Y-m-d'));
             $totalBreakSeconds = 0;
             $totalWorkSeconds = null;
 
             if ($attendance) {
-                foreach ($attendance->attendanceBreaks as $break) {
-                    if ($break->break_in && $break->break_out) {
-                        $breakIn = Carbon::parse($break->break_in);
-                        $breakOut = Carbon::parse($break->break_out);
+                $totalBreakSeconds = $attendance->attendanceBreaks
+                    ->sum(function (AttendanceBreak $break): int {
+                        if ($break->break_in && $break->break_out) {
+                            $breakIn = Carbon::parse($break->break_in);
+                            $breakOut = Carbon::parse($break->break_out);
 
-                        $totalBreakSeconds += $breakOut->diffInSeconds($breakIn);
-                    }
-                }
+                            return $breakOut->diffInSeconds($breakIn);
+                        }
+
+                        return 0;
+                    });
 
                 if ($attendance->clock_in && $attendance->clock_out) {
                     $clockIn = Carbon::parse($attendance->clock_in);
@@ -216,7 +216,7 @@ class AttendanceController extends Controller
                 }
             }
 
-            $formattedAttendanceRecords->push([
+            return [
                 'id' => $attendance?->id,
                 'date' => $day->format('m/d')
                     . '('
@@ -234,8 +234,8 @@ class AttendanceController extends Controller
                 'total_time' => $totalWorkSeconds !== null
                     ? gmdate('H:i:s', $totalWorkSeconds)
                     : null,
-            ]);
-        }
+            ];
+        });
 
         return view(
             'user.user-attendance-list',

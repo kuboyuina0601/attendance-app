@@ -38,15 +38,16 @@ class AdminStampCorrectionRequestController extends Controller
                     WHEN approval_status = '承認済み' THEN approved_at
                 END DESC
             ")
-            ->get();
+            ->get()
+            ->map(function ($application) {
+                $application->user = $application->attendance->user;
 
-        foreach ($applications as $application) {
-            $application->user = $application->attendance->user;
+                $application->AttendanceRecord = (object) [
+                    'date' => $application->attendance->work_date,
+                ];
 
-            $application->AttendanceRecord = (object) [
-                'date' => $application->attendance->work_date,
-            ];
-        }
+                return $application;
+            });
 
         return view('admin.admin-application-list', compact('applications'));
     }
@@ -97,8 +98,9 @@ class AdminStampCorrectionRequestController extends Controller
     public function update(
         int $stamp_correction_request_id
     ): RedirectResponse {
-        $application = StampCorrectionRequest::with('stampCorrectionRequestBreaks')
-            ->findOrFail($stamp_correction_request_id);
+        $application = StampCorrectionRequest::findOrFail(
+            $stamp_correction_request_id
+        );
 
         if ($application->approval_status !== '承認待ち') {
             return redirect()->back();
@@ -106,6 +108,7 @@ class AdminStampCorrectionRequestController extends Controller
 
         DB::transaction(function () use ($application): void {
             $application = StampCorrectionRequest::whereKey($application->id)
+                ->with('stampCorrectionRequestBreaks')
                 ->lockForUpdate()
                 ->firstOrFail();
 
@@ -124,13 +127,15 @@ class AdminStampCorrectionRequestController extends Controller
 
             $attendance->attendanceBreaks()->delete();
 
-            foreach ($application->stampCorrectionRequestBreaks as $break) {
-                AttendanceBreak::create([
-                    'attendance_id' => $attendance->id,
-                    'break_in' => $break->new_break_in,
-                    'break_out' => $break->new_break_out,
-                ]);
-            }
+            $application->stampCorrectionRequestBreaks->each(
+                function ($break) use ($attendance): void {
+                    AttendanceBreak::create([
+                        'attendance_id' => $attendance->id,
+                        'break_in' => $break->new_break_in,
+                        'break_out' => $break->new_break_out,
+                    ]);
+                }
+            );
 
             $application->update([
                 'approval_status' => '承認済み',

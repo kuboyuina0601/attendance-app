@@ -92,11 +92,9 @@ class AttendanceRecordResource extends JsonResource
             return 0;
         }
 
-        $total = 0;
-
-        foreach ($this->attendanceBreaks as $break) {
+        return $this->attendanceBreaks->sum(function ($break): int {
             if (!$break->break_in || !$break->break_out) {
-                continue;
+                return 0;
             }
 
             $start = strtotime($break->break_in);
@@ -106,9 +104,7 @@ class AttendanceRecordResource extends JsonResource
                 $end += 24 * 60 * 60;
             }
 
-            $total += $end - $start;
-        }
-
-        return $total;
+            return $end - $start;
+        });
     }
 }

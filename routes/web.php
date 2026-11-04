@@ -9,6 +9,10 @@ use App\Http\Controllers\AdminStaffAttendanceController;
 use App\Http\Controllers\AdminStampCorrectionRequestController;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
+// /にアクセスした場合は、ログイン画面にリダイレクト
+Route::get('/', function () {
+    return redirect('/login');
+});
 
 // 一般ユーザー：ログイン画面
 Route::get('/login', function () {

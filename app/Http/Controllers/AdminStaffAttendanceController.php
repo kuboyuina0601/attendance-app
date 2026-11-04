@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\User;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -47,27 +48,26 @@ class AdminStaffAttendanceController extends Controller
                 fn(Attendance $attendance): string => $attendance->work_date->format('Y-m-d')
             );
 
-        $formattedAttendanceRecords = collect();
-
-        for (
-            $day = $startOfMonth->copy();
-            $day->lte($endOfMonth);
-            $day->addDay()
-        ) {
+        $formattedAttendanceRecords = collect(
+            CarbonPeriod::create($startOfMonth, $endOfMonth)
+        )->map(function (Carbon $day) use ($attendanceRecords): array {
             $attendance = $attendanceRecords->get($day->format('Y-m-d'));
 
             $totalBreakSeconds = 0;
             $totalWorkSeconds = null;
 
             if ($attendance) {
-                foreach ($attendance->attendanceBreaks as $break) {
-                    if ($break->break_in && $break->break_out) {
+                $totalBreakSeconds = $attendance->attendanceBreaks
+                    ->sum(function ($break): int {
+                        if (!$break->break_in || !$break->break_out) {
+                            return 0;
+                        }
+
                         $breakIn = Carbon::parse($break->break_in);
                         $breakOut = Carbon::parse($break->break_out);
 
-                        $totalBreakSeconds += $breakOut->diffInSeconds($breakIn);
-                    }
-                }
+                        return $breakOut->diffInSeconds($breakIn);
+                    });
 
                 if ($attendance->clock_in && $attendance->clock_out) {
                     $clockIn = Carbon::parse($attendance->clock_in);
@@ -81,7 +81,7 @@ class AdminStaffAttendanceController extends Controller
                 }
             }
 
-            $formattedAttendanceRecords->push([
+            return [
                 'id' => $attendance?->id,
                 'date' => $day->format('m/d')
                     . '('
@@ -99,8 +99,8 @@ class AdminStaffAttendanceController extends Controller
                 'total_time' => $totalWorkSeconds !== null
                     ? gmdate('H:i:s', $totalWorkSeconds)
                     : null,
-            ]);
-        }
+            ];
+        });
 
         return view(
             'admin.staff-attendance-list',
@@ -171,11 +171,9 @@ class AdminStaffAttendanceController extends Controller
                     '合計',
                 ]);
 
-                for (
-                    $day = $startOfMonth->copy();
-                    $day->lte($endOfMonth);
-                    $day->addDay()
-                ) {
+                collect(
+                    CarbonPeriod::create($startOfMonth, $endOfMonth)
+                )->each(function (Carbon $day) use ($handle, $attendanceRecords): void {
                     $attendance = $attendanceRecords->get(
                         $day->format('Y-m-d')
                     );
@@ -184,15 +182,17 @@ class AdminStaffAttendanceController extends Controller
                     $totalWorkSeconds = null;
 
                     if ($attendance) {
-                        foreach ($attendance->attendanceBreaks as $break) {
-                            if ($break->break_in && $break->break_out) {
+                        $totalBreakSeconds = $attendance->attendanceBreaks
+                            ->sum(function ($break): int {
+                                if (!$break->break_in || !$break->break_out) {
+                                    return 0;
+                                }
+
                                 $breakIn = Carbon::parse($break->break_in);
                                 $breakOut = Carbon::parse($break->break_out);
 
-                                $totalBreakSeconds +=
-                                    $breakOut->diffInSeconds($breakIn);
-                            }
-                        }
+                                return $breakOut->diffInSeconds($breakIn);
+                            });
 
                         if ($attendance->clock_in && $attendance->clock_out) {
                             $clockIn = Carbon::parse($attendance->clock_in);
@@ -234,7 +234,7 @@ class AdminStaffAttendanceController extends Controller
                         $breakTime,
                         $workTime,
                     ]);
-                }
+                });
 
                 fclose($handle);
             },

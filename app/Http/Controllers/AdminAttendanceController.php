@@ -38,41 +38,46 @@ class AdminAttendanceController extends Controller
             ->orderBy('id')
             ->get();
 
-        $attendanceRecords = Attendance::with('attendanceBreaks')
+        $attendanceRecords = Attendance::with([
+            'user',
+            'attendanceBreaks',
+        ])
             ->whereDate('work_date', $date->format('Y-m-d'))
             ->whereIn('user_id', $users->pluck('id'))
-            ->get();
+            ->get()
+            ->map(function (Attendance $attendance): Attendance {
+                $totalBreakSeconds = $attendance->attendanceBreaks
+                    ->sum(function (AttendanceBreak $break): int {
+                        if (!$break->break_in || !$break->break_out) {
+                            return 0;
+                        }
 
-        foreach ($attendanceRecords as $attendance) {
-            $totalBreakSeconds = 0;
+                        return Carbon::parse($break->break_in)
+                            ->diffInSeconds(Carbon::parse($break->break_out));
+                    });
 
-            foreach ($attendance->attendanceBreaks as $break) {
-                if ($break->break_in && $break->break_out) {
-                    $totalBreakSeconds += Carbon::parse($break->break_in)
-                        ->diffInSeconds(Carbon::parse($break->break_out));
+                $totalWorkSeconds = 0;
+
+                if ($attendance->clock_in && $attendance->clock_out) {
+                    $totalWorkSeconds = Carbon::parse($attendance->clock_in)
+                        ->diffInSeconds(Carbon::parse($attendance->clock_out));
+
+                    $totalWorkSeconds = max(
+                        0,
+                        $totalWorkSeconds - $totalBreakSeconds
+                    );
                 }
-            }
 
-            $totalWorkSeconds = 0;
-
-            if ($attendance->clock_in && $attendance->clock_out) {
-                $totalWorkSeconds = Carbon::parse($attendance->clock_in)
-                    ->diffInSeconds(Carbon::parse($attendance->clock_out));
-
-                $totalWorkSeconds = max(
-                    0,
-                    $totalWorkSeconds - $totalBreakSeconds
+                $attendance->total_break_time = $this->formatDuration(
+                    $totalBreakSeconds
                 );
-            }
 
-            $attendance->total_break_time = $this->formatDuration(
-                $totalBreakSeconds
-            );
+                $attendance->total_time = $attendance->clock_out
+                    ? $this->formatDuration($totalWorkSeconds)
+                    : null;
 
-            $attendance->total_time = $attendance->clock_out
-                ? $this->formatDuration($totalWorkSeconds)
-                : null;
-        }
+                return $attendance;
+            });
 
         return view('admin.admin-attendance-list', compact(
             'date',
@@ -192,15 +197,15 @@ class AdminAttendanceController extends Controller
 
             $usedBreakIds = [];
 
-            foreach (array_unique(array_merge(
+            collect(array_unique(array_merge(
                 array_keys($breakIns),
                 array_keys($breakOuts)
-            )) as $index) {
+            )))->each(function ($index) use ($breakIns, $breakOuts, $existingBreaks, $attendance, &$usedBreakIds): void {
                 $breakIn = $breakIns[$index] ?? null;
                 $breakOut = $breakOuts[$index] ?? null;
 
                 if (blank($breakIn) && blank($breakOut)) {
-                    continue;
+                    return;
                 }
 
                 $break = $existingBreaks->get((int) $index);
@@ -220,7 +225,7 @@ class AdminAttendanceController extends Controller
 
                     $usedBreakIds[] = $newBreak->id;
                 }
-            }
+            });
 
             $attendance->attendanceBreaks()
                 ->whereNotIn('id', $usedBreakIds)
