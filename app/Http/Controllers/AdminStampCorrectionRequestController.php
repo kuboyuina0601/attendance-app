@@ -42,7 +42,7 @@ class AdminStampCorrectionRequestController extends Controller
         return view('admin.admin-application-list', compact('applications'));
     }
 
-    public function edit($stamp_correction_request_id)
+    public function show($stamp_correction_request_id)
     {
         $application = StampCorrectionRequest::with([
             'attendance.user',
@@ -71,10 +71,10 @@ class AdminStampCorrectionRequestController extends Controller
         ));
     }
 
-    public function update($attendance_correct_request_id)
+    public function update($stamp_correction_request_id)
     {
         $application = StampCorrectionRequest::with('stampCorrectionRequestBreaks')
-            ->findOrFail($attendance_correct_request_id);
+            ->findOrFail($stamp_correction_request_id);
 
         if ($application->approval_status !== '承認待ち') {
             return redirect()->back();

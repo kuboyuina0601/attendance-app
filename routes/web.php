@@ -116,22 +116,22 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // 管理者：修正申請承認画面
     Route::get(
-        '/stamp_correction_request/approve/{attendance_correct_request_id}',
+        '/stamp_correction_request/approve/{stamp_correction_request_id}',
         [
             AdminStampCorrectionRequestController::class,
-            'edit',
+            'show',
         ]
-    )->whereNumber('attendance_correct_request_id')
-        ->name('admin.stamp-correction-request.edit');
+    )->whereNumber('stamp_correction_request_id')
+        ->name('admin.stamp-correction-request.show');
 
     // 管理者：修正申請承認処理
     Route::post(
-        '/stamp_correction_request/approve/{attendance_correct_request_id}',
+        '/stamp_correction_request/approve/{stamp_correction_request_id}',
         [
             AdminStampCorrectionRequestController::class,
             'update',
         ]
-    )->whereNumber('attendance_correct_request_id')
+    )->whereNumber('stamp_correction_request_id')
         ->name('admin.stamp-correction-request.update');
 });
 
