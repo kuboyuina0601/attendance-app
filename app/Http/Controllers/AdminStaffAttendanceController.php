@@ -136,8 +136,9 @@ class AdminStaffAttendanceController extends Controller
             );
 
         $fileName = sprintf(
-            'staff_attendance_%d_%s.csv',
+            'staff_attendance_%d_%s_%s.csv',
             $user->id,
+            $user->name,
             $date->format('Y-m')
         );
 
