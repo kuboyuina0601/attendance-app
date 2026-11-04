@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\DB;
 
 class AdminStampCorrectionRequestController extends Controller
 {
+    /**
+     * 勤怠修正申請の一覧を表示する
+     *
+     * @return View 勤怠修正申請一覧画面
+     */
     public function index(): View
     {
         $applications = StampCorrectionRequest::with([
@@ -46,6 +51,12 @@ class AdminStampCorrectionRequestController extends Controller
         return view('admin.admin-application-list', compact('applications'));
     }
 
+    /**
+     * 指定した勤怠修正申請の詳細を表示する
+     *
+     * @param int $stamp_correction_request_id 表示する勤怠修正申請ID
+     * @return View 勤怠修正申請詳細画面
+     */
     public function show(int $stamp_correction_request_id): View
     {
         $application = StampCorrectionRequest::with([
@@ -77,6 +88,12 @@ class AdminStampCorrectionRequestController extends Controller
         ));
     }
 
+    /**
+     * 勤怠修正申請を承認し、勤怠情報を更新する
+     *
+     * @param int $stamp_correction_request_id 承認する勤怠修正申請ID
+     * @return RedirectResponse 前の画面へのリダイレクトレスポンス
+     */
     public function update(
         int $stamp_correction_request_id
     ): RedirectResponse {

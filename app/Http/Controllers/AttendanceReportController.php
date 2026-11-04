@@ -8,6 +8,11 @@ use Illuminate\Contracts\View\View;
 
 class AttendanceReportController extends Controller
 {
+    /**
+     * ログインユーザーの過去6か月分の勤怠レポートを表示する
+     *
+     * @return View 勤怠レポート画面
+     */
     public function index(): View
     {
         $user = auth()->user();

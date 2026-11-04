@@ -15,6 +15,12 @@ use App\Models\StampCorrectionRequest;
 
 class AdminAttendanceController extends Controller
 {
+    /**
+     * 指定した日付の全ユーザーの勤怠一覧を表示する
+     *
+     * @param Request $request 表示する日付を受け取るリクエスト
+     * @return View 管理者向け勤怠一覧画面
+     */
     public function index(Request $request): View
     {
         $request->validate([
@@ -77,6 +83,12 @@ class AdminAttendanceController extends Controller
         ));
     }
 
+    /**
+     * 指定した勤怠の詳細を表示する
+     *
+     * @param int $id 表示する勤怠ID
+     * @return View 管理者向け勤怠詳細画面
+     */
     public function show(int $id): View
     {
         $attendance = Attendance::with([
@@ -132,6 +144,13 @@ class AdminAttendanceController extends Controller
         ));
     }
 
+    /**
+     * 管理者が勤怠情報と休憩情報を修正する
+     *
+     * @param UpdateAdminAttendanceRequest $request 更新内容を受け取るリクエスト
+     * @param int $id 更新対象の勤怠ID
+     * @return RedirectResponse 勤怠詳細画面へのリダイレクトレスポンス
+     */
     public function update(
         UpdateAdminAttendanceRequest $request,
         int $id
@@ -211,6 +230,12 @@ class AdminAttendanceController extends Controller
         return redirect('/admin/attendance/' . $attendance->id);
     }
 
+    /**
+     * 秒数を時:分の形式に変換する
+     *
+     * @param int $seconds 変換する秒数
+     * @return string 時:分の形式に変換した時間
+     */
     private function formatDuration(int $seconds): string
     {
         $hours = intdiv($seconds, 3600);

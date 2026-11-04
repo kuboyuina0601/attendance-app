@@ -14,6 +14,11 @@ use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
+    /**
+     * 勤怠登録画面を表示する
+     *
+     * @return View 勤怠登録画面
+     */
     public function create(): View
     {
         $user = auth()->user();
@@ -46,6 +51,12 @@ class AttendanceController extends Controller
         );
     }
 
+    /**
+     * 出勤・退勤・休憩の打刻を登録する
+     *
+     * @param Request $request 打刻操作の種類を受け取るリクエスト
+     * @return RedirectResponse 前の画面へのリダイレクトレスポンス
+     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -140,6 +151,12 @@ class AttendanceController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * ログインユーザーの月別勤怠一覧を表示する
+     *
+     * @param Request $request 表示する年月を受け取るリクエスト
+     * @return View 月別勤怠一覧画面
+     */
     public function index(Request $request): View
     {
         $request->validate([
@@ -231,6 +248,12 @@ class AttendanceController extends Controller
         );
     }
 
+    /**
+     * 指定した勤怠の詳細を表示する
+     *
+     * @param int $id 表示する勤怠ID
+     * @return View 勤怠詳細画面
+     */
     public function show(int $id): View
     {
         $user = auth()->user();

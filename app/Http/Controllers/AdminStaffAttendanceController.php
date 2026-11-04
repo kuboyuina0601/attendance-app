@@ -11,6 +11,13 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AdminStaffAttendanceController extends Controller
 {
+    /**
+     * 指定したユーザーの月別勤怠一覧を表示する
+     *
+     * @param Request $request 月の指定を受け取るリクエスト
+     * @param int $id 勤怠一覧を表示するユーザーID
+     * @return View 勤怠一覧画面
+     */
     public function index(Request $request, int $id): View
     {
         $request->validate([
@@ -107,6 +114,12 @@ class AdminStaffAttendanceController extends Controller
         );
     }
 
+    /**
+     * 指定したユーザーの月別勤怠データをCSV形式で出力する
+     *
+     * @param Request $request ユーザーIDと対象年月を受け取るリクエスト
+     * @return StreamedResponse CSVファイルのダウンロードレスポンス
+     */
     public function export(Request $request): StreamedResponse
     {
         $validated = $request->validate([

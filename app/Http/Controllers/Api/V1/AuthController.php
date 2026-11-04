@@ -10,6 +10,12 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    /**
+     * APIログインを行い、認証トークンを発行する
+     *
+     * @param Request $request メールアドレスとパスワードを受け取るリクエスト
+     * @return JsonResponse ログイン結果と認証トークンを含むJSONレスポンス
+     */
     public function login(Request $request): JsonResponse
     {
         $validated = $request->validate([

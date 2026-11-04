@@ -16,6 +16,9 @@ class AttendanceRecordController extends Controller
 {
     /**
      * 勤怠一覧を取得する
+     *
+     * @param IndexAttendanceRecordRequest $request 検索条件を受け取るリクエスト
+     * @return AnonymousResourceCollection 勤怠一覧のリソースコレクション
      */
     public function index(
         IndexAttendanceRecordRequest $request
@@ -50,6 +53,9 @@ class AttendanceRecordController extends Controller
 
     /**
      * 勤怠詳細を取得する
+     *
+     * @param Attendance $attendanceRecord 取得対象の勤怠情報
+     * @return AttendanceRecordResource 勤怠詳細のリソース
      */
     public function show(
         Attendance $attendanceRecord
@@ -65,6 +71,9 @@ class AttendanceRecordController extends Controller
 
     /**
      * 勤怠を新規登録する
+     *
+     * @param StoreAttendanceRecordRequest $request 登録する勤怠情報を受け取るリクエスト
+     * @return JsonResponse 登録した勤怠情報を含むJSONレスポンス
      */
     public function store(
         StoreAttendanceRecordRequest $request
@@ -90,6 +99,10 @@ class AttendanceRecordController extends Controller
 
     /**
      * 勤怠を更新する
+     *
+     * @param UpdateAttendanceRecordRequest $request 更新する勤怠情報を受け取るリクエスト
+     * @param Attendance $attendanceRecord 更新対象の勤怠情報
+     * @return AttendanceRecordResource 更新した勤怠情報のリソース
      */
     public function update(
         UpdateAttendanceRecordRequest $request,
@@ -116,6 +129,9 @@ class AttendanceRecordController extends Controller
 
     /**
      * 勤怠を削除する
+     *
+     * @param Attendance $attendanceRecord 削除対象の勤怠情報
+     * @return Response コンテンツを含まないHTTPレスポンス
      */
     public function destroy(
         Attendance $attendanceRecord
