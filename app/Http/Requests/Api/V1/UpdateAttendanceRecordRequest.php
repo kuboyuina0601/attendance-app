@@ -23,7 +23,7 @@ class UpdateAttendanceRecordRequest extends FormRequest
                 'required',
                 'date_format:Y-m-d',
                 Rule::unique('attendances', 'work_date')
-                    ->where('user_id', $this->user()->id)
+                    ->where('user_id', $attendanceRecord?->user_id)
                     ->ignore($attendanceRecord?->id),
             ],
             'clock_in' => [

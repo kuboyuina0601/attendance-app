@@ -18,7 +18,8 @@ return new class extends Migration {
                 ->constrained(
                     table: 'stamp_correction_requests',
                     indexName: 'scrb_request_fk'
-                );
+                )
+                ->cascadeOnDelete();
 
             //修正希望の休憩時間
             $table->time('new_break_in');

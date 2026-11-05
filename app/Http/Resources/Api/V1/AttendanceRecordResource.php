@@ -61,10 +61,6 @@ class AttendanceRecordResource extends JsonResource
         $start = strtotime($this->clock_in);
         $end = strtotime($this->clock_out);
 
-        if ($end < $start) {
-            $end += 24 * 60 * 60;
-        }
-
         $breakSeconds = $this->calculateBreakSeconds();
         $workSeconds = max(0, $end - $start - $breakSeconds);
 
@@ -88,6 +84,15 @@ class AttendanceRecordResource extends JsonResource
 
     private function calculateBreakSeconds(): int
     {
+        if (
+            array_key_exists(
+                'total_break_seconds',
+                $this->resource->getAttributes()
+            )
+        ) {
+            return (int) $this->total_break_seconds;
+        }
+
         if (!$this->relationLoaded('attendanceBreaks')) {
             return 0;
         }
@@ -99,10 +104,6 @@ class AttendanceRecordResource extends JsonResource
 
             $start = strtotime($break->break_in);
             $end = strtotime($break->break_out);
-
-            if ($end < $start) {
-                $end += 24 * 60 * 60;
-            }
 
             return $end - $start;
         });

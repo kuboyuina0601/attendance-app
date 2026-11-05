@@ -13,7 +13,9 @@ return new class extends Migration {
         Schema::create('stamp_correction_requests', function (Blueprint $table) {
             $table->id();
             //どの勤怠か
-            $table->foreignId('attendance_id')->constrained('attendances');
+            $table->foreignId('attendance_id')
+                ->constrained('attendances')
+                ->cascadeOnDelete();
             //修正希望の勤怠情報
             $table->time('new_clock_in');
             $table->time('new_clock_out');

@@ -74,7 +74,7 @@ class Handler extends ExceptionHandler
     ) {
         if ($request->is('api/*')) {
             return response()->json([
-                'message' => '認証が必要です。',
+                'message' => 'Unauthenticated.',
             ], 401);
         }
 

@@ -23,7 +23,18 @@ class AttendanceRecordController extends Controller
     public function index(
         IndexAttendanceRecordRequest $request
     ): AnonymousResourceCollection {
-        $query = Attendance::with('user', 'attendanceBreaks');
+        $query = Attendance::with('user')
+            ->withSum(
+                [
+                    'attendanceBreaks as total_break_seconds' => function ($query) {
+                        $query->whereNotNull('break_in')
+                            ->whereNotNull('break_out');
+                    },
+                ],
+                \Illuminate\Support\Facades\DB::raw(
+                    'TIME_TO_SEC(TIMEDIFF(break_out, break_in))'
+                )
+            );
 
         if ($request->filled('user_id')) {
             $query->where('user_id', $request->input('user_id'));
