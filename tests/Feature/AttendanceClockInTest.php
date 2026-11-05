@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\Attendance;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class AttendanceClockInTest extends TestCase
@@ -12,37 +14,76 @@ class AttendanceClockInTest extends TestCase
 
     public function test_user_can_clock_in(): void
     {
-        $user = User::factory()->create([
-            'admin_status' => false,
-        ]);
+        Carbon::setTestNow(Carbon::parse('2026-10-28 09:15:00'));
 
-        $response = $this->actingAs($user)->post('/attendance', [
-            'action' => 'clock_in',
-        ]);
+        try {
+            $user = User::factory()->create([
+                'admin_status' => false,
+            ]);
 
-        $response->assertSessionHasNoErrors();
+            $response = $this->actingAs($user)->get('/attendance');
 
-        $this->assertDatabaseHas('attendances', [
-            'user_id' => $user->id,
-            'work_date' => now()->toDateString(),
-        ]);
+            $response->assertStatus(200);
+            $response->assertSee('出勤');
+
+            $this->post('/attendance', [
+                'action' => 'clock_in',
+            ]);
+
+            $response = $this->get('/attendance');
+
+            $response->assertStatus(200);
+            $response->assertSee('出勤中');
+
+            $this->assertDatabaseHas('attendances', [
+                'user_id' => $user->id,
+                'work_date' => '2026-10-28',
+                'clock_in' => '09:15:00',
+            ]);
+        } finally {
+            Carbon::setTestNow();
+        }
     }
 
-    public function test_user_cannot_clock_in_twice_in_one_day(): void
+    public function test_clock_in_button_is_not_displayed_after_clock_out(): void
     {
         $user = User::factory()->create([
             'admin_status' => false,
         ]);
 
-        $this->actingAs($user)->post('/attendance', [
-            'action' => 'clock_in',
+        Attendance::create([
+            'user_id' => $user->id,
+            'work_date' => today(),
+            'clock_in' => '09:00:00',
+            'clock_out' => '18:00:00',
         ]);
 
-        $this->post('/attendance', [
-            'action' => 'clock_in',
-        ]);
+        $response = $this->actingAs($user)->get('/attendance');
 
-        $this->assertDatabaseCount('attendances', 1);
+        $response->assertStatus(200);
+        $response->assertSee('退勤済');
+        $response->assertDontSee('value="clock_in"', false);
+    }
+
+    public function test_clock_in_time_is_displayed_on_attendance_list(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-10-28 09:15:00'));
+
+        try {
+            $user = User::factory()->create([
+                'admin_status' => false,
+            ]);
+
+            $this->actingAs($user)->post('/attendance', [
+                'action' => 'clock_in',
+            ]);
+
+            $response = $this->get('/attendance/list');
+
+            $response->assertStatus(200);
+            $response->assertSee('09:15');
+        } finally {
+            Carbon::setTestNow();
+        }
     }
 }
-?>

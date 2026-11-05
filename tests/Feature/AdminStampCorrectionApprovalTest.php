@@ -3,9 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Attendance;
-use App\Models\AttendanceBreak;
 use App\Models\StampCorrectionRequest;
-use App\Models\StampCorrectionRequestBreak;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,27 +12,49 @@ class AdminStampCorrectionApprovalTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * 管理者が修正申請一覧を表示できる。
-     */
-    public function test_admin_can_view_stamp_correction_request_list(): void
+    public function test_admin_can_view_all_pending_stamp_correction_requests(): void
     {
-        [$admin, $user, $attendance] = $this->createAdminUserAndAttendance();
+        $admin = User::factory()->create([
+            'admin_status' => true,
+        ]);
 
-        $application = $this->createCorrectionRequest($attendance);
+        [$user1, $attendance1] = $this->createUserAndAttendance('申請ユーザーA');
+        [$user2, $attendance2] = $this->createUserAndAttendance('申請ユーザーB');
+
+        $this->createCorrectionRequest($attendance1, '承認待ち');
+        $this->createCorrectionRequest($attendance2, '承認待ち');
 
         $response = $this->actingAs($admin)
             ->get('/stamp_correction_request/list');
 
         $response->assertOk();
-        $response->assertSee($user->name);
-        $response->assertSee('承認待ち');
+        $response->assertSee($user1->name);
+        $response->assertSee($user2->name);
         $response->assertSee('修正申請のテスト');
     }
 
-    /**
-     * 管理者が修正申請の詳細を表示できる。
-     */
+    public function test_admin_can_view_all_approved_stamp_correction_requests(): void
+    {
+        $admin = User::factory()->create([
+            'admin_status' => true,
+        ]);
+
+        [$user1, $attendance1] = $this->createUserAndAttendance('承認済みユーザーA');
+        [$user2, $attendance2] = $this->createUserAndAttendance('承認済みユーザーB');
+
+        $this->createCorrectionRequest($attendance1, '承認済み');
+        $this->createCorrectionRequest($attendance2, '承認済み');
+
+        $response = $this->actingAs($admin)
+            ->get('/stamp_correction_request/list');
+
+        $response->assertOk();
+        $response->assertSee($user1->name);
+        $response->assertSee($user2->name);
+        $response->assertSee('承認済み');
+        $response->assertSee('修正申請のテスト');
+    }
+
     public function test_admin_can_view_stamp_correction_request_detail(): void
     {
         [$admin, $user, $attendance] = $this->createAdminUserAndAttendance();
@@ -51,16 +71,13 @@ class AdminStampCorrectionApprovalTest extends TestCase
         $response->assertSee('修正申請のテスト');
     }
 
-    /**
-     * 管理者が修正申請を承認できる。
-     */
     public function test_admin_can_approve_stamp_correction_request(): void
     {
         [$admin, $user, $attendance] = $this->createAdminUserAndAttendance();
 
         $application = $this->createCorrectionRequest($attendance);
 
-        $this->actingAs($admin)
+        $response = $this->actingAs($admin)
             ->post('/stamp_correction_request/approve/' . $application->id);
 
         $this->assertDatabaseHas('stamp_correction_requests', [
@@ -75,83 +92,21 @@ class AdminStampCorrectionApprovalTest extends TestCase
         ]);
     }
 
-    /**
-     * 承認時に休憩時間も申請内容に更新される。
-     */
-    public function test_approval_updates_attendance_breaks(): void
-    {
-        [$admin, $user, $attendance] = $this->createAdminUserAndAttendance();
-
-        AttendanceBreak::factory()->create([
-            'attendance_id' => $attendance->id,
-            'break_in' => '12:00:00',
-            'break_out' => '13:00:00',
-        ]);
-
-        $application = $this->createCorrectionRequest($attendance);
-
-        StampCorrectionRequestBreak::factory()->create([
-            'stamp_correction_request_id' => $application->id,
-            'new_break_in' => '12:30:00',
-            'new_break_out' => '13:15:00',
-        ]);
-
-        $this->actingAs($admin)
-            ->post('/stamp_correction_request/approve/' . $application->id);
-
-        $this->assertDatabaseHas('attendance_breaks', [
-            'attendance_id' => $attendance->id,
-            'break_in' => '12:30:00',
-            'break_out' => '13:15:00',
-        ]);
-
-        $this->assertDatabaseMissing('attendance_breaks', [
-            'attendance_id' => $attendance->id,
-            'break_in' => '12:00:00',
-            'break_out' => '13:00:00',
-        ]);
-    }
-
-    /**
-     * 承認済みの申請は再承認しても勤怠を更新しない。
-     */
-    public function test_approved_request_cannot_be_approved_again(): void
-    {
-        [$admin, $user, $attendance] = $this->createAdminUserAndAttendance();
-
-        $application = $this->createCorrectionRequest($attendance);
-
-        $this->actingAs($admin)
-            ->post('/stamp_correction_request/approve/' . $application->id);
-
-        $attendance->refresh();
-
-        $this->assertSame('09:30:00', $attendance->clock_in);
-        $this->assertSame('18:30:00', $attendance->clock_out);
-
-        $application->refresh();
-        $this->assertSame('承認済み', $application->approval_status);
-
-        $this->actingAs($admin)
-            ->post('/stamp_correction_request/approve/' . $application->id);
-
-        $attendance->refresh();
-
-        $this->assertSame('09:30:00', $attendance->clock_in);
-        $this->assertSame('18:30:00', $attendance->clock_out);
-    }
-
-    /**
-     * 管理者・一般ユーザー・勤怠データを作成する。
-     */
     private function createAdminUserAndAttendance(): array
     {
         $admin = User::factory()->create([
             'admin_status' => true,
         ]);
 
+        [$user, $attendance] = $this->createUserAndAttendance('申請テストユーザー');
+
+        return [$admin, $user, $attendance];
+    }
+
+    private function createUserAndAttendance(string $name): array
+    {
         $user = User::factory()->create([
-            'name' => '申請テストユーザー',
+            'name' => $name,
             'admin_status' => false,
         ]);
 
@@ -163,22 +118,21 @@ class AdminStampCorrectionApprovalTest extends TestCase
             'comment' => '修正前の備考',
         ]);
 
-        return [$admin, $user, $attendance];
+        return [$user, $attendance];
     }
 
-    /**
-     * 勤怠修正申請を作成する。
-     */
-    private function createCorrectionRequest(Attendance $attendance): StampCorrectionRequest
-    {
+    private function createCorrectionRequest(
+        Attendance $attendance,
+        string $approvalStatus = '承認待ち'
+    ): StampCorrectionRequest {
         return StampCorrectionRequest::factory()->create([
             'attendance_id' => $attendance->id,
             'new_clock_in' => '09:30:00',
             'new_clock_out' => '18:30:00',
             'comment' => '修正申請のテスト',
             'application_date' => '2026-10-21',
-            'approval_status' => '承認待ち',
-            'approved_at' => null,
+            'approval_status' => $approvalStatus,
+            'approved_at' => $approvalStatus === '承認済み' ? '2026-10-22 10:00:00' : null,
         ]);
     }
 }

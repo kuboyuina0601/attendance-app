@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Attendance extends Model
 {
@@ -31,7 +32,7 @@ class Attendance extends Model
         return $this->hasMany(AttendanceBreak::class);
     }
 
-    public function stampCorrectionRequests()
+    public function stampCorrectionRequests():HasMany
     {
         return $this->hasMany(StampCorrectionRequest::class);
     }

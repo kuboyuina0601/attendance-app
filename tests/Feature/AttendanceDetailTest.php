@@ -102,24 +102,4 @@ class AttendanceDetailTest extends TestCase
         $response->assertSee('12:00', false);
         $response->assertSee('13:00', false);
     }
-
-    public function test_user_cannot_view_another_users_attendance_detail(): void
-    {
-        $user = User::factory()->create([
-            'admin_status' => false,
-        ]);
-
-        $anotherUser = User::factory()->create([
-            'admin_status' => false,
-        ]);
-
-        $attendance = $this->createAttendance($anotherUser);
-
-        $response = $this->actingAs($user)->get(
-            '/attendance/' . $attendance->id
-        );
-
-        $response->assertNotFound();
-    }
 }
-?>

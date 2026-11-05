@@ -76,7 +76,7 @@ class SanctumAuthenticationTest extends TestCase
         $response->assertUnprocessable()
             ->assertJsonPath(
                 'errors.email.0',
-                '正しいメールアドレスを入力してください。'
+                '正しいメールアドレスを入力してください'
             );
     }
 

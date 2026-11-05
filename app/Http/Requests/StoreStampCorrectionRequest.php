@@ -2,6 +2,6 @@
 
 namespace App\Http\Requests;
 
-class StoreStampCorrectionRequest extends AttendanceCorrectionRequest
+class StoreStampCorrectionRequest extends StampCorrectionRequest
 {
 }

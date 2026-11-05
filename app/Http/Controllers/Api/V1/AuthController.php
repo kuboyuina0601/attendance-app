@@ -23,7 +23,7 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ], [
             'email.required' => 'メールアドレスは必須です。',
-            'email.email' => '正しいメールアドレスを入力してください。',
+            'email.email' => '正しいメールアドレスを入力してください',
             'password.required' => 'パスワードは必須です。',
         ]);
 

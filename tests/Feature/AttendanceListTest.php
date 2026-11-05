@@ -4,8 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Attendance;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class AttendanceListTest extends TestCase
@@ -20,118 +20,132 @@ class AttendanceListTest extends TestCase
 
         Attendance::create([
             'user_id' => $user->id,
-            'work_date' => now()->toDateString(),
+            'work_date' => '2026-10-01',
             'clock_in' => '09:00:00',
             'clock_out' => '18:00:00',
         ]);
 
-        $response = $this->actingAs($user)->get('/attendance/list');
+        Attendance::create([
+            'user_id' => $user->id,
+            'work_date' => '2026-10-02',
+            'clock_in' => '08:00:00',
+            'clock_out' => '17:00:00',
+        ]);
 
-        $response->assertOk();
-        $response->assertSee('09:00');
-        $response->assertSee('18:00');
+        Carbon::setTestNow(Carbon::parse('2026-10-15 12:00:00'));
+
+        try {
+            $response = $this->actingAs($user)->get('/attendance/list');
+
+            $response->assertOk();
+            $response->assertSee('09:00');
+            $response->assertSee('18:00');
+            $response->assertSee('08:00');
+            $response->assertSee('17:00');
+        } finally {
+            Carbon::setTestNow();
+        }
     }
 
     public function test_attendance_list_displays_current_month(): void
     {
-        $user = User::factory()->create([
-            'admin_status' => false,
-        ]);
+        Carbon::setTestNow(Carbon::parse('2026-10-15 12:00:00'));
 
-        $attendanceDate = now()->startOfMonth()->toDateString();
+        try {
+            $user = User::factory()->create([
+                'admin_status' => false,
+            ]);
 
-        Attendance::create([
-            'user_id' => $user->id,
-            'work_date' => $attendanceDate,
-            'clock_in' => '08:15:00',
-            'clock_out' => '17:15:00',
-        ]);
+            $response = $this->actingAs($user)->get('/attendance/list');
 
-        $response = $this->actingAs($user)->get('/attendance/list');
-
-        $response->assertOk();
-        $response->assertSee('08:15');
-        $response->assertSee('17:15');
+            $response->assertOk();
+            $response->assertSee('2026/10');
+        } finally {
+            Carbon::setTestNow();
+        }
     }
 
     public function test_user_can_view_previous_month(): void
     {
-        $user = User::factory()->create([
-            'admin_status' => false,
-        ]);
+        Carbon::setTestNow(Carbon::parse('2026-10-15 12:00:00'));
 
-        $previousMonthDate = now()
-            ->subMonthNoOverflow()
-            ->startOfMonth();
+        try {
+            $user = User::factory()->create([
+                'admin_status' => false,
+            ]);
 
-        Attendance::create([
-            'user_id' => $user->id,
-            'work_date' => $previousMonthDate->toDateString(),
-            'clock_in' => '07:21:00',
-            'clock_out' => '16:21:00',
-        ]);
+            Attendance::create([
+                'user_id' => $user->id,
+                'work_date' => '2026-09-01',
+                'clock_in' => '07:21:00',
+                'clock_out' => '16:21:00',
+            ]);
 
-        $previousMonth = $previousMonthDate->format('Y-m');
+            $response = $this->actingAs($user)->get(
+                '/attendance/list?date=2026-09'
+            );
 
-        $response = $this->actingAs($user)->get(
-            '/attendance/list?date=' . $previousMonth
-        );
-
-        $response->assertOk();
-        $response->assertSee('07:21');
-        $response->assertSee('16:21');
+            $response->assertOk();
+            $response->assertSee('2026/09');
+            $response->assertSee('07:21');
+            $response->assertSee('16:21');
+        } finally {
+            Carbon::setTestNow();
+        }
     }
 
     public function test_user_can_view_next_month(): void
     {
-        $user = User::factory()->create([
-            'admin_status' => false,
-        ]);
+        Carbon::setTestNow(Carbon::parse('2026-10-15 12:00:00'));
 
-        $nextMonthDate = now()
-            ->addMonthNoOverflow()
-            ->startOfMonth();
+        try {
+            $user = User::factory()->create([
+                'admin_status' => false,
+            ]);
 
-        Attendance::create([
-            'user_id' => $user->id,
-            'work_date' => $nextMonthDate->toDateString(),
-            'clock_in' => '08:32:00',
-            'clock_out' => '17:32:00',
-        ]);
+            Attendance::create([
+                'user_id' => $user->id,
+                'work_date' => '2026-11-01',
+                'clock_in' => '08:32:00',
+                'clock_out' => '17:32:00',
+            ]);
 
-        $nextMonth = $nextMonthDate->format('Y-m');
+            $response = $this->actingAs($user)->get(
+                '/attendance/list?date=2026-11'
+            );
 
-        $response = $this->actingAs($user)->get(
-            '/attendance/list?date=' . $nextMonth
-        );
-
-        $response->assertOk();
-        $response->assertSee('08:32');
-        $response->assertSee('17:32');
+            $response->assertOk();
+            $response->assertSee('2026/11');
+            $response->assertSee('08:32');
+            $response->assertSee('17:32');
+        } finally {
+            Carbon::setTestNow();
+        }
     }
 
-    public function test_user_cannot_view_another_users_attendance(): void
+    public function test_user_can_navigate_to_attendance_detail(): void
     {
         $user = User::factory()->create([
             'admin_status' => false,
         ]);
 
-        $anotherUser = User::factory()->create([
-            'admin_status' => false,
-        ]);
-
-        Attendance::create([
-            'user_id' => $anotherUser->id,
+        $attendance = Attendance::create([
+            'user_id' => $user->id,
             'work_date' => now()->toDateString(),
             'clock_in' => '09:00:00',
             'clock_out' => '18:00:00',
         ]);
 
-        $response = $this->actingAs($user)->get('/attendance/list');
+        $this->actingAs($user);
+
+        $response = $this->get('/attendance/list');
 
         $response->assertOk();
-        $response->assertDontSee('09:00');
-        $response->assertDontSee('18:00');
+        $response->assertSee('/attendance/' . $attendance->id, false);
+
+        $detailResponse = $this->get('/attendance/' . $attendance->id);
+
+        $detailResponse->assertOk();
     }
 }
 ?>

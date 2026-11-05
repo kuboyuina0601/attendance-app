@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Attendance;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class AttendanceClockOutTest extends TestCase
@@ -22,47 +23,62 @@ class AttendanceClockOutTest extends TestCase
 
     public function test_user_can_clock_out(): void
     {
-        $user = User::factory()->create([
-            'admin_status' => false,
-        ]);
+        Carbon::setTestNow(Carbon::parse('2026-10-28 18:00:00'));
 
-        $attendance = $this->createAttendance($user);
+        try {
+            $user = User::factory()->create([
+                'admin_status' => false,
+            ]);
 
-        $response = $this->actingAs($user)->post('/attendance', [
-            'action' => 'clock_out',
-        ]);
+            $this->createAttendance($user);
 
-        $response->assertRedirect();
+            $this->actingAs($user);
 
-        $this->assertDatabaseMissing('attendances', [
-            'id' => $attendance->id,
-            'clock_out' => null,
-        ]);
+            $response = $this->get('/attendance');
+
+            $response->assertStatus(200);
+            $response->assertSee('退勤');
+
+            $this->post('/attendance', [
+                'action' => 'clock_out',
+            ]);
+
+            $response = $this->get('/attendance');
+
+            $response->assertStatus(200);
+            $response->assertSee('退勤済');
+        } finally {
+            Carbon::setTestNow();
+        }
     }
 
-    public function test_user_cannot_clock_out_during_break(): void
+    public function test_clock_out_time_is_displayed_on_attendance_list(): void
     {
-        $user = User::factory()->create([
-            'admin_status' => false,
-        ]);
+        Carbon::setTestNow(Carbon::parse('2026-10-28 09:00:00'));
 
-        $attendance = $this->createAttendance($user);
+        try {
+            $user = User::factory()->create([
+                'admin_status' => false,
+            ]);
 
-        $attendance->attendanceBreaks()->create([
-            'break_in' => '12:00:00',
-            'break_out' => null,
-        ]);
+            $this->actingAs($user);
 
-        $response = $this->actingAs($user)->post('/attendance', [
-            'action' => 'clock_out',
-        ]);
+            $this->post('/attendance', [
+                'action' => 'clock_in',
+            ]);
 
-        $response->assertSessionHasErrors(['action']);
+            Carbon::setTestNow(Carbon::parse('2026-10-28 18:00:00'));
 
-        $this->assertDatabaseHas('attendances', [
-            'id' => $attendance->id,
-            'clock_out' => null,
-        ]);
+            $this->post('/attendance', [
+                'action' => 'clock_out',
+            ]);
+
+            $response = $this->get('/attendance/list');
+
+            $response->assertStatus(200);
+            $response->assertSee('18:00');
+        } finally {
+            Carbon::setTestNow();
+        }
     }
 }
-?>

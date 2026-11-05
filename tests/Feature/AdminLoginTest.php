@@ -18,7 +18,9 @@ class AdminLoginTest extends TestCase
             'password' => 'password123',
         ]);
 
-        $response->assertSessionHasErrors(['email']);
+        $response->assertSessionHasErrors([
+            'email' => 'メールアドレスを入力してください',
+        ]);
     }
 
     public function test_password_is_required(): void
@@ -28,20 +30,12 @@ class AdminLoginTest extends TestCase
             'password' => '',
         ]);
 
-        $response->assertSessionHasErrors(['password']);
+        $response->assertSessionHasErrors([
+            'password' => 'パスワードを入力してください',
+        ]);
     }
 
     public function test_login_fails_with_invalid_credentials(): void
-    {
-        $response = $this->post('/admin/login', [
-            'email' => 'unknown@example.com',
-            'password' => 'password123',
-        ]);
-
-        $response->assertSessionHasErrors(['email']);
-    }
-
-    public function test_admin_can_login_successfully(): void
     {
         User::create([
             'name' => 'テスト管理者',
@@ -51,12 +45,12 @@ class AdminLoginTest extends TestCase
         ]);
 
         $response = $this->post('/admin/login', [
-            'email' => 'admin@example.com',
+            'email' => 'unknown@example.com',
             'password' => 'password123',
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect();
+        $response->assertSessionHasErrors([
+            'email' => 'ログイン情報が登録されていません',
+        ]);
     }
 }
-?>

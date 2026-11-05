@@ -23,13 +23,10 @@ class AttendanceDateTimeTest extends TestCase
             $response = $this->actingAs($user)->get('/attendance');
 
             $response->assertStatus(200);
-            $response->assertSee('2026');
-            $response->assertSee('10');
-            $response->assertSee('28');
+            $response->assertSee('2026年10月28日');
             $response->assertSee('10:30');
         } finally {
             Carbon::setTestNow();
         }
     }
 }
-?>

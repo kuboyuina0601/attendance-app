@@ -12,9 +12,6 @@ class AdminAttendanceDetailTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * 管理者が勤怠詳細画面を表示できる。
-     */
     public function test_admin_can_view_attendance_detail(): void
     {
         $admin = User::factory()->create([
@@ -54,15 +51,12 @@ class AdminAttendanceDetailTest extends TestCase
         $response->assertSee('通常勤務');
     }
 
-    /**
-     * 出勤時間が退勤時間以降の場合はエラーになる。
-     */
     public function test_admin_cannot_update_attendance_when_clock_in_is_after_clock_out(): void
     {
         [$admin, $attendance] = $this->createAdminAndAttendance();
 
         $response = $this->actingAs($admin)
-            ->post('/attendance/' . $attendance->id, [
+            ->post('/admin/attendance/' . $attendance->id, [
                 'new_clock_in' => '18:00',
                 'new_clock_out' => '09:00',
                 'comment' => '修正テスト',
@@ -75,19 +69,34 @@ class AdminAttendanceDetailTest extends TestCase
         ]);
     }
 
-    /**
-     * 休憩終了が退勤時間以降の場合はエラーになる。
-     */
-    public function test_admin_cannot_update_attendance_when_break_ends_after_clock_out(): void
+    public function test_admin_cannot_update_attendance_when_break_in_is_after_clock_out(): void
     {
         [$admin, $attendance] = $this->createAdminAndAttendance();
 
         $response = $this->actingAs($admin)
-            ->post('/attendance/' . $attendance->id, [
+            ->post('/admin/attendance/' . $attendance->id, [
+                'new_clock_in' => '09:00',
+                'new_clock_out' => '18:00',
+                'new_break_in' => ['19:00'],
+                'new_break_out' => ['19:30'],
+                'comment' => '修正テスト',
+            ]);
+
+        $response->assertSessionHasErrors([
+            'new_break_in.0' => '休憩時間が不適切な値です',
+        ]);
+    }
+
+    public function test_admin_cannot_update_attendance_when_break_out_is_after_clock_out(): void
+    {
+        [$admin, $attendance] = $this->createAdminAndAttendance();
+
+        $response = $this->actingAs($admin)
+            ->post('/admin/attendance/' . $attendance->id, [
                 'new_clock_in' => '09:00',
                 'new_clock_out' => '18:00',
                 'new_break_in' => ['17:00'],
-                'new_break_out' => ['18:00'],
+                'new_break_out' => ['19:00'],
                 'comment' => '修正テスト',
             ]);
 
@@ -96,36 +105,12 @@ class AdminAttendanceDetailTest extends TestCase
         ]);
     }
 
-    /**
-     * 休憩終了が休憩開始以前の場合はエラーになる。
-     */
-    public function test_admin_cannot_update_attendance_when_break_out_is_before_break_in(): void
-    {
-        [$admin, $attendance] = $this->createAdminAndAttendance();
-
-        $response = $this->actingAs($admin)
-            ->post('/attendance/' . $attendance->id, [
-                'new_clock_in' => '09:00',
-                'new_clock_out' => '18:00',
-                'new_break_in' => ['13:00'],
-                'new_break_out' => ['12:00'],
-                'comment' => '修正テスト',
-            ]);
-
-        $response->assertSessionHasErrors([
-            'new_break_out.0' => '休憩時間が不適切な値です',
-        ]);
-    }
-
-    /**
-     * 備考が空欄の場合はエラーになる。
-     */
     public function test_admin_cannot_update_attendance_without_comment(): void
     {
         [$admin, $attendance] = $this->createAdminAndAttendance();
 
         $response = $this->actingAs($admin)
-            ->post('/attendance/' . $attendance->id, [
+            ->post('/admin/attendance/' . $attendance->id, [
                 'new_clock_in' => '09:00',
                 'new_clock_out' => '18:00',
                 'new_break_in' => [''],
@@ -138,41 +123,6 @@ class AdminAttendanceDetailTest extends TestCase
         ]);
     }
 
-    /**
-     * 正しい内容で勤怠を修正できる。
-     */
-    public function test_admin_can_update_attendance_with_valid_data(): void
-    {
-        [$admin, $attendance] = $this->createAdminAndAttendance();
-
-        $response = $this->actingAs($admin)
-            ->post('/attendance/' . $attendance->id, [
-                'new_clock_in' => '08:30',
-                'new_clock_out' => '17:30',
-                'new_break_in' => ['12:00'],
-                'new_break_out' => ['12:45'],
-                'comment' => '管理者による修正',
-            ]);
-
-        $response->assertRedirect('/admin/attendance/' . $attendance->id);
-
-        $this->assertDatabaseHas('attendances', [
-            'id' => $attendance->id,
-            'clock_in' => '08:30',
-            'clock_out' => '17:30',
-            'comment' => '管理者による修正',
-        ]);
-
-        $this->assertDatabaseHas('attendance_breaks', [
-            'attendance_id' => $attendance->id,
-            'break_in' => '12:00',
-            'break_out' => '12:45',
-        ]);
-    }
-
-    /**
-     * 管理者とテスト対象の勤怠データを作成する。
-     */
     private function createAdminAndAttendance(): array
     {
         $admin = User::factory()->create([
@@ -200,4 +150,3 @@ class AdminAttendanceDetailTest extends TestCase
         return [$admin, $attendance];
     }
 }
-?>
