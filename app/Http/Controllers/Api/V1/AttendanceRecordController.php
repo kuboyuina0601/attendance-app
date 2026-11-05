@@ -104,6 +104,7 @@ class AttendanceRecordController extends Controller
      * @param Attendance $attendanceRecord 更新対象の勤怠情報
      * @return AttendanceRecordResource 更新した勤怠情報のリソース
      */
+
     public function update(
         UpdateAttendanceRecordRequest $request,
         Attendance $attendanceRecord
@@ -112,12 +113,25 @@ class AttendanceRecordController extends Controller
 
         $validated = $request->validated();
 
-        $attendanceRecord->update([
-            'work_date' => $validated['date'],
-            'clock_in' => $validated['clock_in'],
-            'clock_out' => $validated['clock_out'] ?? null,
-            'comment' => $validated['comment'] ?? null,
-        ]);
+        $updates = [];
+
+        if (array_key_exists('date', $validated)) {
+            $updates['work_date'] = $validated['date'];
+        }
+
+        if (array_key_exists('clock_in', $validated)) {
+            $updates['clock_in'] = $validated['clock_in'];
+        }
+
+        if (array_key_exists('clock_out', $validated)) {
+            $updates['clock_out'] = $validated['clock_out'];
+        }
+
+        if (array_key_exists('comment', $validated)) {
+            $updates['comment'] = $validated['comment'];
+        }
+
+        $attendanceRecord->update($updates);
 
         $attendanceRecord->load([
             'user',
@@ -126,6 +140,7 @@ class AttendanceRecordController extends Controller
 
         return new AttendanceRecordResource($attendanceRecord);
     }
+
 
     /**
      * 勤怠を削除する
