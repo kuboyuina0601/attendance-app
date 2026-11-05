@@ -135,6 +135,13 @@ class AttendanceCorrectionRequest extends FormRequest
                     );
                 }
 
+                if ($validClockOut && $breakIn >= $clockOut) {
+                    $validator->errors()->add(
+                        "new_break_in.$index",
+                        '休憩時間が不適切な値です'
+                    );
+                }
+
                 if ($validClockOut && $breakOut >= $clockOut) {
                     $validator->errors()->add(
                         "new_break_out.$index",
