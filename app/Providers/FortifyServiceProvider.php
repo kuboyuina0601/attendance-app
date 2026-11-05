@@ -15,6 +15,8 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Fortify;
+use App\Http\Requests\AdminLoginRequest;
+use App\Http\Requests\UserLoginRequest;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -54,13 +56,21 @@ class FortifyServiceProvider extends ServiceProvider
 
         // ログインユーザーの種別を確認する処理
         Fortify::authenticateUsing(function (Request $request) {
-            $user = User::where('email', $request->input('email'))->first();
+            $isAdminLogin = $request->is('admin/login');
 
-            if (!$user || !Hash::check($request->input('password'), $user->password)) {
+            $formRequest = app(
+                $isAdminLogin
+                ? AdminLoginRequest::class
+                : UserLoginRequest::class
+            );
+
+            $validated = $formRequest->validated();
+
+            $user = User::where('email', $validated['email'])->first();
+
+            if (!$user || !Hash::check($validated['password'], $user->password)) {
                 return null;
             }
-
-            $isAdminLogin = $request->is('admin/login');
 
             if ($isAdminLogin && !$user->admin_status) {
                 return null;

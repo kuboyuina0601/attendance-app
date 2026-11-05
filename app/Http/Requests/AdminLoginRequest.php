@@ -2,6 +2,6 @@
 
 namespace App\Http\Requests;
 
-class UserLoginRequest extends LoginRequest
+class AdminLoginRequest extends LoginRequest
 {
 }
