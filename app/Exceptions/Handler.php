@@ -8,23 +8,17 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
 {
-    /**
-     * The list of the inputs that are never flashed to the session on validation exceptions.
-     *
-     * @var array<int, string>
-     */
     protected $dontFlash = [
         'current_password',
         'password',
         'password_confirmation',
     ];
 
-    /**
-     * Register the exception handling callbacks for the application.
-     */
     public function register(): void
     {
         $this->reportable(function (Throwable $e) {
@@ -42,9 +36,28 @@ class Handler extends ExceptionHandler
             return null;
         });
 
+        $this->renderable(function (NotFoundHttpException $exception, Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'error' => '勤怠情報が見つかりませんでした。',
+                ], 404);
+            }
+
+            return null;
+        });
 
         // APIの操作権限がない場合は403を返す
         $this->renderable(function (AuthorizationException $exception, Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'error' => 'この操作を実行する権限がありません。',
+                ], 403);
+            }
+
+            return null;
+        });
+
+        $this->renderable(function (AccessDeniedHttpException $exception, Request $request) {
             if ($request->is('api/*')) {
                 return response()->json([
                     'error' => 'この操作を実行する権限がありません。',
@@ -62,7 +75,7 @@ class Handler extends ExceptionHandler
     ) {
         if ($request->is('api/*')) {
             return response()->json([
-                'message' => 'Unauthenticated.',
+                'message' => '認証が必要です。',
             ], 401);
         }
 

@@ -53,7 +53,7 @@ class StampCorrectionTest extends TestCase
         );
 
         $response->assertSessionHasErrors([
-            'new_clock_in' => '出勤時間が不適切な値です',
+            'new_clock_in' => '出勤時間もしくは退勤時間が不適切な値です',
         ]);
     }
 
