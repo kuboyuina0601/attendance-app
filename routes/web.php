@@ -140,7 +140,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 // 勤怠詳細：ログインユーザーの権限に応じて表示先を振り分ける
-Route::get('//attendance/{id}', function ($id) {
+Route::get('/attendance/{id}', function ($id) {
     $user = auth()->user();
 
     if ($user->admin_status) {
