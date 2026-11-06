@@ -271,6 +271,99 @@ class AttendanceRecordWriteTest extends TestCase
     }
 
     /**
+     * PATCHで退勤時刻だけを更新できる
+     */
+    public function test_user_can_partially_update_clock_out(): void
+    {
+        $user = User::factory()->create();
+
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'work_date' => '2026-10-01',
+            'clock_in' => '09:00:00',
+            'clock_out' => '18:00:00',
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->patchJson('/api/v1/attendance-records/' . $attendance->id, [
+                'clock_out' => '19:00:00',
+            ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.clock_in', '09:00:00')
+            ->assertJsonPath('data.clock_out', '19:00:00');
+
+        $this->assertDatabaseHas('attendance_records', [
+            'id' => $attendance->id,
+            'clock_in' => '09:00:00',
+            'clock_out' => '19:00:00',
+        ]);
+    }
+
+    /**
+     * PATCHで出勤時刻と退勤時刻を同時に更新できる
+     */
+    public function test_user_can_partially_update_clock_in_and_clock_out(): void
+    {
+        $user = User::factory()->create();
+
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'work_date' => '2026-10-01',
+            'clock_in' => '09:00:00',
+            'clock_out' => '18:00:00',
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->patchJson('/api/v1/attendance-records/' . $attendance->id, [
+                'clock_in' => '10:00:00',
+                'clock_out' => '19:00:00',
+            ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.clock_in', '10:00:00')
+            ->assertJsonPath('data.clock_out', '19:00:00');
+
+        $this->assertDatabaseHas('attendance_records', [
+            'id' => $attendance->id,
+            'clock_in' => '10:00:00',
+            'clock_out' => '19:00:00',
+        ]);
+    }
+
+    /**
+     * PATCHで退勤時刻を既存の出勤時刻より前に変更するとエラーになる
+     */
+    public function test_user_cannot_update_clock_out_to_earlier_than_existing_clock_in(): void
+    {
+        $user = User::factory()->create();
+
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'work_date' => '2026-10-01',
+            'clock_in' => '09:00:00',
+            'clock_out' => '18:00:00',
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->patchJson('/api/v1/attendance-records/' . $attendance->id, [
+                'clock_out' => '08:00:00',
+            ]);
+
+        $response->assertUnprocessable()
+            ->assertJsonPath(
+                'errors.clock_out.0',
+                '退勤時刻は出勤時刻より後の時刻を指定してください。'
+            );
+
+        $this->assertDatabaseHas('attendance_records', [
+            'id' => $attendance->id,
+            'clock_in' => '09:00:00',
+            'clock_out' => '18:00:00',
+        ]);
+    }
+
+    /**
      * PATCHで出勤時刻を退勤時刻より後に変更するとエラーになる
      */
     public function test_user_cannot_update_clock_in_to_later_than_existing_clock_out(): void
@@ -441,5 +534,60 @@ class AttendanceRecordWriteTest extends TestCase
                 'error',
                 '勤怠情報が見つかりませんでした。'
             );
+    }
+
+    /**
+     * 備考が255文字以内なら勤怠を登録できる
+     */
+    public function test_attendance_can_be_created_with_255_character_comment(): void
+    {
+        $user = User::factory()->create();
+        $comment = str_repeat('あ', 255);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/v1/attendance-records', [
+                'date' => '2026-10-01',
+                'clock_in' => '09:00:00',
+                'clock_out' => '18:00:00',
+                'comment' => $comment,
+            ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.comment', $comment);
+
+        $this->assertDatabaseHas('attendance_records', [
+            'user_id' => $user->id,
+            'work_date' => '2026-10-01',
+            'comment' => $comment,
+        ]);
+    }
+
+
+    /**
+     * 備考を255文字に更新できる
+     */
+    public function test_user_can_update_comment_with_255_characters(): void
+    {
+        $user = User::factory()->create();
+
+        $attendance = Attendance::factory()->create([
+            'user_id' => $user->id,
+            'work_date' => '2026-10-01',
+        ]);
+
+        $comment = str_repeat('あ', 255);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->patchJson('/api/v1/attendance-records/' . $attendance->id, [
+                'comment' => $comment,
+            ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.comment', $comment);
+
+        $this->assertDatabaseHas('attendance_records', [
+            'id' => $attendance->id,
+            'comment' => $comment,
+        ]);
     }
 }

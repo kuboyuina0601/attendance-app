@@ -123,6 +123,38 @@ class AdminAttendanceDetailTest extends TestCase
         ]);
     }
 
+    /**
+     * 管理者が勤怠情報を正常に修正できる
+     */
+    public function test_admin_can_update_attendance_successfully(): void
+    {
+        [$admin, $attendance] = $this->createAdminAndAttendance();
+
+        $response = $this->actingAs($admin)
+            ->post('/admin/attendance/' . $attendance->id, [
+                'new_clock_in' => '08:30',
+                'new_clock_out' => '19:00',
+                'new_break_in' => ['12:30'],
+                'new_break_out' => ['13:30'],
+                'comment' => '修正後の備考',
+            ]);
+
+        $response->assertRedirect('/admin/attendance/' . $attendance->id);
+
+        $this->assertDatabaseHas('attendance_records', [
+            'id' => $attendance->id,
+            'clock_in' => '08:30',
+            'clock_out' => '19:00',
+            'comment' => '修正後の備考',
+        ]);
+
+        $this->assertDatabaseHas('attendance_breaks', [
+            'attendance_id' => $attendance->id,
+            'break_in' => '12:30',
+            'break_out' => '13:30',
+        ]);
+    }
+
     private function createAdminAndAttendance(): array
     {
         $admin = User::factory()->create([

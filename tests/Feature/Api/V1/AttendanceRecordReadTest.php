@@ -168,7 +168,7 @@ class AttendanceRecordReadTest extends TestCase
     }
 
     /**
-     * 存在しない勤怠IDを指定すると404になる
+     * 存在しない勤怠IDを指定すると404とエラーメッセージを返す
      */
     public function test_attendance_record_not_found_returns_404(): void
     {
@@ -176,6 +176,10 @@ class AttendanceRecordReadTest extends TestCase
             '/api/v1/attendance-records/99999'
         );
 
-        $response->assertNotFound();
+        $response->assertNotFound()
+            ->assertJsonPath(
+                'error',
+                '勤怠情報が見つかりませんでした。'
+            );
     }
 }

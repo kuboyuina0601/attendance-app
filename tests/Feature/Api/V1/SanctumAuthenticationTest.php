@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Api\V1;
 
-use App\Models\Attendance;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -206,4 +205,45 @@ class SanctumAuthenticationTest extends TestCase
                 'Unauthenticated.'
             );
     }
+
+
+    /**
+     * トークンなしでは勤怠を更新できない
+     */
+    public function test_user_cannot_update_attendance_without_token(): void
+    {
+        $response = $this->putJson('/api/v1/attendance-records/1', [
+            'date' => '2026-10-01',
+            'clock_in' => '09:00:00',
+            'clock_out' => '18:00:00',
+        ]);
+
+        $response->assertUnauthorized()
+            ->assertJsonPath('message', 'Unauthenticated.');
+    }
+
+    /**
+     * トークンなしでは勤怠を部分更新できない
+     */
+    public function test_user_cannot_partially_update_attendance_without_token(): void
+    {
+        $response = $this->patchJson('/api/v1/attendance-records/1', [
+            'clock_in' => '09:00:00',
+        ]);
+
+        $response->assertUnauthorized()
+            ->assertJsonPath('message', 'Unauthenticated.');
+    }
+
+    /**
+     * トークンなしでは勤怠を削除できない
+     */
+    public function test_user_cannot_delete_attendance_without_token(): void
+    {
+        $response = $this->deleteJson('/api/v1/attendance-records/1');
+
+        $response->assertUnauthorized()
+            ->assertJsonPath('message', 'Unauthenticated.');
+    }
+
 }
