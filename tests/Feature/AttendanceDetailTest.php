@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Attendance;
 use App\Models\AttendanceBreak;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -34,7 +35,7 @@ class AttendanceDetailTest extends TestCase
         $attendance = $this->createAttendance($user);
 
         $response = $this->actingAs($user)->get(
-            '/attendance/' . $attendance->id
+            '/attendance/'.$attendance->id
         );
 
         $response->assertOk();
@@ -52,12 +53,12 @@ class AttendanceDetailTest extends TestCase
         $attendance = $this->createAttendance($user, $workDate);
 
         $response = $this->actingAs($user)->get(
-            '/attendance/' . $attendance->id
+            '/attendance/'.$attendance->id
         );
 
         $response->assertOk();
 
-        $expectedDate = \Carbon\Carbon::parse($workDate)
+        $expectedDate = Carbon::parse($workDate)
             ->format('n月j日');
 
         $response->assertSee($expectedDate);
@@ -72,7 +73,7 @@ class AttendanceDetailTest extends TestCase
         $attendance = $this->createAttendance($user);
 
         $response = $this->actingAs($user)->get(
-            '/attendance/' . $attendance->id
+            '/attendance/'.$attendance->id
         );
 
         $response->assertOk();
@@ -95,7 +96,7 @@ class AttendanceDetailTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get(
-            '/attendance/' . $attendance->id
+            '/attendance/'.$attendance->id
         );
 
         $response->assertOk();

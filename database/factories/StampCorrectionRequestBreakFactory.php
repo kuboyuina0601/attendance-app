@@ -3,10 +3,12 @@
 namespace Database\Factories;
 
 use App\Models\StampCorrectionRequest;
+use App\Models\StampCorrectionRequestBreak;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\StampCorrectionRequestBreak>
+ * @extends Factory<StampCorrectionRequestBreak>
  */
 class StampCorrectionRequestBreakFactory extends Factory
 {
@@ -19,7 +21,7 @@ class StampCorrectionRequestBreakFactory extends Factory
     {
         $breakStart = fake()->dateTimeBetween('12:00:00', '14:00:00');
 
-        $breakEnd = \Carbon\Carbon::instance($breakStart)
+        $breakEnd = Carbon::instance($breakStart)
             ->addMinutes(fake()->numberBetween(30, 90));
 
         return [

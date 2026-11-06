@@ -22,7 +22,7 @@ class AttendanceRecordResource extends JsonResource
 
             'user_name' => $this->whenLoaded(
                 'user',
-                fn() => $this->user->name
+                fn () => $this->user->name
             ),
 
             'date' => $this->work_date?->format('Y-m-d'),
@@ -36,7 +36,7 @@ class AttendanceRecordResource extends JsonResource
 
             'breaks' => $this->whenLoaded(
                 'attendanceBreaks',
-                fn() => $this->attendanceBreaks->map(fn($break) => [
+                fn () => $this->attendanceBreaks->map(fn ($break) => [
                     'id' => $break->id,
                     'break_in' => $break->break_in,
                     'break_out' => $break->break_out,
@@ -51,7 +51,7 @@ class AttendanceRecordResource extends JsonResource
 
     private function calculateTotalWorkTime(): ?string
     {
-        if (!$this->clock_in || !$this->clock_out) {
+        if (! $this->clock_in || ! $this->clock_out) {
             return null;
         }
 
@@ -90,12 +90,12 @@ class AttendanceRecordResource extends JsonResource
             return (int) $this->total_break_seconds;
         }
 
-        if (!$this->relationLoaded('attendanceBreaks')) {
+        if (! $this->relationLoaded('attendanceBreaks')) {
             return 0;
         }
 
         return $this->attendanceBreaks->sum(function ($break): int {
-            if (!$break->break_in || !$break->break_out) {
+            if (! $break->break_in || ! $break->break_out) {
                 return 0;
             }
 

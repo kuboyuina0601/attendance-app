@@ -6,6 +6,9 @@ use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
+use App\Http\Requests\AdminLoginRequest;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\UserLoginRequest;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -14,9 +17,9 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
+use Laravel\Fortify\Contracts\LoginResponse;
+use Laravel\Fortify\Contracts\LogoutResponse;
 use Laravel\Fortify\Fortify;
-use App\Http\Requests\AdminLoginRequest;
-use App\Http\Requests\UserLoginRequest;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -26,18 +29,18 @@ class FortifyServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(
-            \Laravel\Fortify\Contracts\LoginResponse::class,
+            LoginResponse::class,
             \App\Http\Responses\LoginResponse::class
         );
 
         $this->app->singleton(
-            \Laravel\Fortify\Contracts\LogoutResponse::class,
+            LogoutResponse::class,
             \App\Http\Responses\LogoutResponse::class
         );
 
         $this->app->bind(
             \Laravel\Fortify\Http\Requests\LoginRequest::class,
-            \App\Http\Requests\LoginRequest::class
+            LoginRequest::class
         );
     }
 
@@ -73,15 +76,15 @@ class FortifyServiceProvider extends ServiceProvider
 
             $user = User::where('email', $validated['email'])->first();
 
-            if (!$user || !Hash::check($validated['password'], $user->password)) {
+            if (! $user || ! Hash::check($validated['password'], $user->password)) {
                 return null;
             }
 
-            if ($isAdminLogin && !$user->admin_status) {
+            if ($isAdminLogin && ! $user->admin_status) {
                 return null;
             }
 
-            if (!$isAdminLogin && $user->admin_status) {
+            if (! $isAdminLogin && $user->admin_status) {
                 return null;
             }
 
@@ -91,8 +94,8 @@ class FortifyServiceProvider extends ServiceProvider
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(
                 Str::lower($request->input(Fortify::username()))
-                . '|'
-                . $request->ip()
+                .'|'
+                .$request->ip()
             );
 
             return Limit::perMinute(5)->by($throttleKey);

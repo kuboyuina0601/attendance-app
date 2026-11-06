@@ -2,12 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\Attendance;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Attendance>
+ * @extends Factory<Attendance>
  */
 class AttendanceFactory extends Factory
 {
@@ -19,7 +20,7 @@ class AttendanceFactory extends Factory
     public function definition(): array
     {
         $clockIn = fake()->dateTimeBetween('08:00:00', '10:00:00');
-        //退勤時間が必ず出勤時間より後になる処理
+        // 退勤時間が必ず出勤時間より後になる処理
         $clockOut = Carbon::instance($clockIn)
             ->addHours(fake()->numberBetween(8, 10));
 

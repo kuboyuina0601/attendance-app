@@ -3,21 +3,22 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\IndexAttendanceRecordRequest;
 use App\Http\Requests\Api\V1\StoreAttendanceRecordRequest;
 use App\Http\Requests\Api\V1\UpdateAttendanceRecordRequest;
-use App\Http\Requests\Api\V1\IndexAttendanceRecordRequest;
 use App\Http\Resources\AttendanceRecordResource;
 use App\Models\Attendance;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceRecordController extends Controller
 {
     /**
      * 勤怠一覧を取得する
      *
-     * @param IndexAttendanceRecordRequest $request 検索条件を受け取るリクエスト
+     * @param  IndexAttendanceRecordRequest  $request  検索条件を受け取るリクエスト
      * @return AnonymousResourceCollection 勤怠一覧のリソースコレクション
      */
     public function index(
@@ -31,7 +32,7 @@ class AttendanceRecordController extends Controller
                             ->whereNotNull('break_out');
                     },
                 ],
-                \Illuminate\Support\Facades\DB::raw(
+                DB::raw(
                     'TIME_TO_SEC(TIMEDIFF(break_out, break_in))'
                 )
             );
@@ -48,8 +49,8 @@ class AttendanceRecordController extends Controller
             $month = $request->input('month');
 
             $query->whereBetween('work_date', [
-                $month . '-01',
-                date('Y-m-t', strtotime($month . '-01')),
+                $month.'-01',
+                date('Y-m-t', strtotime($month.'-01')),
             ]);
         }
 
@@ -65,7 +66,7 @@ class AttendanceRecordController extends Controller
     /**
      * 勤怠詳細を取得する
      *
-     * @param Attendance $attendanceRecord 取得対象の勤怠情報
+     * @param  Attendance  $attendanceRecord  取得対象の勤怠情報
      * @return AttendanceRecordResource 勤怠詳細のリソース
      */
     public function show(
@@ -83,7 +84,7 @@ class AttendanceRecordController extends Controller
     /**
      * 勤怠を新規登録する
      *
-     * @param StoreAttendanceRecordRequest $request 登録する勤怠情報を受け取るリクエスト
+     * @param  StoreAttendanceRecordRequest  $request  登録する勤怠情報を受け取るリクエスト
      * @return JsonResponse 登録した勤怠情報を含むJSONレスポンス
      */
     public function store(
@@ -111,11 +112,10 @@ class AttendanceRecordController extends Controller
     /**
      * 勤怠を更新する
      *
-     * @param UpdateAttendanceRecordRequest $request 更新する勤怠情報を受け取るリクエスト
-     * @param Attendance $attendanceRecord 更新対象の勤怠情報
+     * @param  UpdateAttendanceRecordRequest  $request  更新する勤怠情報を受け取るリクエスト
+     * @param  Attendance  $attendanceRecord  更新対象の勤怠情報
      * @return AttendanceRecordResource 更新した勤怠情報のリソース
      */
-
     public function update(
         UpdateAttendanceRecordRequest $request,
         Attendance $attendanceRecord
@@ -152,11 +152,10 @@ class AttendanceRecordController extends Controller
         return new AttendanceRecordResource($attendanceRecord);
     }
 
-
     /**
      * 勤怠を削除する
      *
-     * @param Attendance $attendanceRecord 削除対象の勤怠情報
+     * @param  Attendance  $attendanceRecord  削除対象の勤怠情報
      * @return Response コンテンツを含まないHTTPレスポンス
      */
     public function destroy(

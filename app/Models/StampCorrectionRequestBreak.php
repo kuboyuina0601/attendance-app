@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StampCorrectionRequestBreak extends Model
 {
@@ -15,7 +16,7 @@ class StampCorrectionRequestBreak extends Model
         'new_break_out',
     ];
 
-    public function stampCorrectionRequest()
+    public function stampCorrectionRequest(): BelongsTo
     {
         return $this->belongsTo(StampCorrectionRequest::class);
     }

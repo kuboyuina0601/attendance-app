@@ -38,7 +38,7 @@ class AdminAttendanceDetailTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)
-            ->get('/admin/attendance/' . $attendance->id);
+            ->get('/admin/attendance/'.$attendance->id);
 
         $response->assertOk();
         $response->assertSee('勤怠詳細テストユーザー');
@@ -56,7 +56,7 @@ class AdminAttendanceDetailTest extends TestCase
         [$admin, $attendance] = $this->createAdminAndAttendance();
 
         $response = $this->actingAs($admin)
-            ->post('/admin/attendance/' . $attendance->id, [
+            ->post('/admin/attendance/'.$attendance->id, [
                 'new_clock_in' => '18:00',
                 'new_clock_out' => '09:00',
                 'comment' => '修正テスト',
@@ -74,7 +74,7 @@ class AdminAttendanceDetailTest extends TestCase
         [$admin, $attendance] = $this->createAdminAndAttendance();
 
         $response = $this->actingAs($admin)
-            ->post('/admin/attendance/' . $attendance->id, [
+            ->post('/admin/attendance/'.$attendance->id, [
                 'new_clock_in' => '09:00',
                 'new_clock_out' => '18:00',
                 'new_break_in' => ['19:00'],
@@ -92,7 +92,7 @@ class AdminAttendanceDetailTest extends TestCase
         [$admin, $attendance] = $this->createAdminAndAttendance();
 
         $response = $this->actingAs($admin)
-            ->post('/admin/attendance/' . $attendance->id, [
+            ->post('/admin/attendance/'.$attendance->id, [
                 'new_clock_in' => '09:00',
                 'new_clock_out' => '18:00',
                 'new_break_in' => ['17:00'],
@@ -110,7 +110,7 @@ class AdminAttendanceDetailTest extends TestCase
         [$admin, $attendance] = $this->createAdminAndAttendance();
 
         $response = $this->actingAs($admin)
-            ->post('/admin/attendance/' . $attendance->id, [
+            ->post('/admin/attendance/'.$attendance->id, [
                 'new_clock_in' => '09:00',
                 'new_clock_out' => '18:00',
                 'new_break_in' => [''],
@@ -131,7 +131,7 @@ class AdminAttendanceDetailTest extends TestCase
         [$admin, $attendance] = $this->createAdminAndAttendance();
 
         $response = $this->actingAs($admin)
-            ->post('/admin/attendance/' . $attendance->id, [
+            ->post('/admin/attendance/'.$attendance->id, [
                 'new_clock_in' => '08:30',
                 'new_clock_out' => '19:00',
                 'new_break_in' => ['12:30'],
@@ -139,7 +139,7 @@ class AdminAttendanceDetailTest extends TestCase
                 'comment' => '修正後の備考',
             ]);
 
-        $response->assertRedirect('/admin/attendance/' . $attendance->id);
+        $response->assertRedirect('/admin/attendance/'.$attendance->id);
 
         $this->assertDatabaseHas('attendance_records', [
             'id' => $attendance->id,

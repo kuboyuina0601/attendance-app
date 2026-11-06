@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -12,7 +13,7 @@ return new class extends Migration {
     {
         Schema::create('attendance_breaks', function (Blueprint $table) {
             $table->id();
-            //どの勤怠に紐づく休憩かを示す
+            // どの勤怠に紐づく休憩かを示す
             $table->foreignId('attendance_id')
                 ->constrained('attendance_records')
                 ->cascadeOnDelete();

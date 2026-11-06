@@ -60,7 +60,7 @@ class AdminStaffTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)
-            ->get('/admin/attendance/staff/' . $user->id . '?date=2026-10');
+            ->get('/admin/attendance/staff/'.$user->id.'?date=2026-10');
 
         $response->assertOk();
         $response->assertSee('勤怠確認スタッフ');
@@ -95,7 +95,7 @@ class AdminStaffTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)
-            ->get('/admin/attendance/staff/' . $user->id . '?date=2026-09');
+            ->get('/admin/attendance/staff/'.$user->id.'?date=2026-09');
 
         $response->assertOk();
         $response->assertSee('08:00');
@@ -130,7 +130,7 @@ class AdminStaffTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)
-            ->get('/admin/attendance/staff/' . $user->id . '?date=2026-11');
+            ->get('/admin/attendance/staff/'.$user->id.'?date=2026-11');
 
         $response->assertOk();
         $response->assertSee('10:00');
@@ -157,16 +157,16 @@ class AdminStaffTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)
-            ->get('/admin/attendance/staff/' . $user->id . '?date=2026-10');
+            ->get('/admin/attendance/staff/'.$user->id.'?date=2026-10');
 
         $response->assertOk();
         $response->assertSee(
-            'href="' . url('/attendance/' . $attendance->id) . '"',
+            'href="'.url('/attendance/'.$attendance->id).'"',
             false
         );
 
         $detailResponse = $this->actingAs($admin)
-            ->get('/admin/attendance/' . $attendance->id);
+            ->get('/admin/attendance/'.$attendance->id);
 
         $detailResponse->assertOk();
     }

@@ -141,11 +141,10 @@ class AttendanceListTest extends TestCase
         $response = $this->get('/attendance/list');
 
         $response->assertOk();
-        $response->assertSee('/attendance/' . $attendance->id, false);
+        $response->assertSee('/attendance/'.$attendance->id, false);
 
-        $detailResponse = $this->get('/attendance/' . $attendance->id);
+        $detailResponse = $this->get('/attendance/'.$attendance->id);
 
         $detailResponse->assertOk();
     }
 }
-?>

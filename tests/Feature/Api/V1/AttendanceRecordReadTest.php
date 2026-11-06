@@ -64,7 +64,7 @@ class AttendanceRecordReadTest extends TestCase
         ]);
 
         $response = $this->getJson(
-            '/api/v1/attendance-records?user_id=' . $user->id
+            '/api/v1/attendance-records?user_id='.$user->id
         );
 
         $response->assertOk()
@@ -155,7 +155,7 @@ class AttendanceRecordReadTest extends TestCase
         ]);
 
         $response = $this->getJson(
-            '/api/v1/attendance-records/' . $attendance->id
+            '/api/v1/attendance-records/'.$attendance->id
         );
 
         $response->assertOk()

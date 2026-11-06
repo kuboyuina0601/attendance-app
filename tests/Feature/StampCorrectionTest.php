@@ -48,7 +48,7 @@ class StampCorrectionTest extends TestCase
         $data['new_clock_out'] = '18:00';
 
         $response = $this->actingAs($user)->post(
-            '/attendance/' . $attendance->id,
+            '/attendance/'.$attendance->id,
             $data
         );
 
@@ -71,7 +71,7 @@ class StampCorrectionTest extends TestCase
         $data['new_break_out'] = ['18:45'];
 
         $response = $this->actingAs($user)->post(
-            '/attendance/' . $attendance->id,
+            '/attendance/'.$attendance->id,
             $data
         );
 
@@ -94,7 +94,7 @@ class StampCorrectionTest extends TestCase
         $data['new_break_out'] = ['18:30'];
 
         $response = $this->actingAs($user)->post(
-            '/attendance/' . $attendance->id,
+            '/attendance/'.$attendance->id,
             $data
         );
 
@@ -115,7 +115,7 @@ class StampCorrectionTest extends TestCase
         $data['comment'] = '';
 
         $response = $this->actingAs($user)->post(
-            '/attendance/' . $attendance->id,
+            '/attendance/'.$attendance->id,
             $data
         );
 
@@ -136,7 +136,7 @@ class StampCorrectionTest extends TestCase
         $data = $this->validCorrectionData();
 
         $this->actingAs($user)->post(
-            '/attendance/' . $attendance->id,
+            '/attendance/'.$attendance->id,
             $data
         );
 
@@ -157,12 +157,12 @@ class StampCorrectionTest extends TestCase
         $response->assertSee('打刻時間の修正申請');
         $response->assertSee('テストユーザー');
         $response->assertSee(
-            '/stamp_correction_request/approve/' . $application->id,
+            '/stamp_correction_request/approve/'.$application->id,
             false
         );
 
         $detailResponse = $this->get(
-            '/stamp_correction_request/approve/' . $application->id
+            '/stamp_correction_request/approve/'.$application->id
         );
 
         $detailResponse->assertOk();
@@ -193,12 +193,12 @@ class StampCorrectionTest extends TestCase
         $data2['comment'] = '2件目の修正申請';
 
         $this->actingAs($user)->post(
-            '/attendance/' . $attendance1->id,
+            '/attendance/'.$attendance1->id,
             $data1
         );
 
         $this->post(
-            '/attendance/' . $attendance2->id,
+            '/attendance/'.$attendance2->id,
             $data2
         );
 
@@ -221,7 +221,7 @@ class StampCorrectionTest extends TestCase
         $data = $this->validCorrectionData();
 
         $this->actingAs($user)->post(
-            '/attendance/' . $attendance->id,
+            '/attendance/'.$attendance->id,
             $data
         );
 
@@ -235,7 +235,7 @@ class StampCorrectionTest extends TestCase
         ]);
 
         $this->actingAs($admin)->post(
-            '/stamp_correction_request/approve/' . $application->id
+            '/stamp_correction_request/approve/'.$application->id
         );
 
         $response = $this->actingAs($user)->get(
@@ -261,7 +261,7 @@ class StampCorrectionTest extends TestCase
         $attendance = $this->createAttendance($user);
 
         $this->actingAs($user)->post(
-            '/attendance/' . $attendance->id,
+            '/attendance/'.$attendance->id,
             $this->validCorrectionData()
         );
 
@@ -274,15 +274,14 @@ class StampCorrectionTest extends TestCase
 
         $response->assertOk();
         $response->assertSee(
-            '/application/' . $application->id,
+            '/application/'.$application->id,
             false
         );
 
         $detailResponse = $this->get(
-            '/application/' . $application->id
+            '/application/'.$application->id
         );
 
         $detailResponse->assertOk();
     }
 }
-?>

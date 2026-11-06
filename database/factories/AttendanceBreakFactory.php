@@ -3,10 +3,12 @@
 namespace Database\Factories;
 
 use App\Models\Attendance;
+use App\Models\AttendanceBreak;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\AttendanceBreak>
+ * @extends Factory<AttendanceBreak>
  */
 class AttendanceBreakFactory extends Factory
 {
@@ -19,7 +21,7 @@ class AttendanceBreakFactory extends Factory
     {
         $breakStart = fake()->dateTimeBetween('12:00:00', '14:00:00');
 
-        $breakEnd = \Carbon\Carbon::instance($breakStart)
+        $breakEnd = Carbon::instance($breakStart)
             ->addMinutes(fake()->numberBetween(30, 90));
 
         return [

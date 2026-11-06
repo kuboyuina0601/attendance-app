@@ -94,12 +94,13 @@ class StampCorrectionRequest extends FormRequest
                 array_keys($breakOuts)
             ));
 
-            foreach ($indexes as $index) {
+
+            collect($indexes)->each(function (int|string $index) use ($breakIns, $breakOuts, $timePattern, $validClockIn, $validClockOut, $clockIn, $clockOut, $validator): void {
                 $breakIn = $breakIns[$index] ?? null;
                 $breakOut = $breakOuts[$index] ?? null;
 
                 if (blank($breakIn) && blank($breakOut)) {
-                    continue;
+                    return;
                 }
 
                 if (blank($breakIn) || blank($breakOut)) {
@@ -108,7 +109,7 @@ class StampCorrectionRequest extends FormRequest
                         '休憩時間が不適切な値です'
                     );
 
-                    continue;
+                    return;
                 }
 
                 $validBreakIn = is_string($breakIn)
@@ -118,7 +119,7 @@ class StampCorrectionRequest extends FormRequest
                     && preg_match($timePattern, $breakOut) === 1;
 
                 if (!$validBreakIn || !$validBreakOut) {
-                    continue;
+                    return;
                 }
 
                 if ($breakOut <= $breakIn) {
@@ -128,27 +129,27 @@ class StampCorrectionRequest extends FormRequest
                     );
                 }
 
-                if ($validClockIn && $breakIn <= $clockIn) {
+                if ($validClockIn && $breakIn < $clockIn) {
                     $validator->errors()->add(
                         "new_break_in.$index",
                         '休憩時間が不適切な値です'
                     );
                 }
 
-                if ($validClockOut && $breakIn >= $clockOut) {
+                if ($validClockOut && $breakIn > $clockOut) {
                     $validator->errors()->add(
                         "new_break_in.$index",
                         '休憩時間が不適切な値です'
                     );
                 }
 
-                if ($validClockOut && $breakOut >= $clockOut) {
+                if ($validClockOut && $breakOut > $clockOut) {
                     $validator->errors()->add(
                         "new_break_out.$index",
                         '休憩時間もしくは退勤時間が不適切な値です'
                     );
                 }
-            }
+            });
         });
     }
 }

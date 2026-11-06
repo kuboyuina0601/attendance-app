@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class StampCorrectionRequest extends Model
 {
@@ -24,12 +26,12 @@ class StampCorrectionRequest extends Model
         'approved_at' => 'datetime',
     ];
 
-    public function attendance()
+    public function attendance(): BelongsTo
     {
         return $this->belongsTo(Attendance::class);
     }
 
-    public function stampCorrectionRequestBreaks()
+    public function stampCorrectionRequestBreaks(): HasMany
     {
         return $this->hasMany(StampCorrectionRequestBreak::class);
     }

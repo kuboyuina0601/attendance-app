@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class RegisterTest extends TestCase
@@ -95,7 +97,7 @@ class RegisterTest extends TestCase
             'email' => 'test@example.com',
         ]);
 
-        $user = \App\Models\User::where(
+        $user = User::where(
             'email',
             'test@example.com'
         )->firstOrFail();
@@ -106,7 +108,7 @@ class RegisterTest extends TestCase
         );
 
         $this->assertTrue(
-            \Illuminate\Support\Facades\Hash::check(
+            Hash::check(
                 'password123',
                 $user->password
             )

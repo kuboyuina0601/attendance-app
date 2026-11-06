@@ -3,12 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\Attendance;
+use App\Models\AttendanceBreak;
 use App\Models\StampCorrectionRequest;
+use App\Models\StampCorrectionRequestBreak;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use App\Models\StampCorrectionRequestBreak;
-use App\Models\AttendanceBreak;
 
 class AdminStampCorrectionApprovalTest extends TestCase
 {
@@ -64,7 +64,7 @@ class AdminStampCorrectionApprovalTest extends TestCase
         $application = $this->createCorrectionRequest($attendance);
 
         $response = $this->actingAs($admin)
-            ->get('/stamp_correction_request/approve/' . $application->id);
+            ->get('/stamp_correction_request/approve/'.$application->id);
 
         $response->assertOk();
         $response->assertSee($user->name);
@@ -80,7 +80,7 @@ class AdminStampCorrectionApprovalTest extends TestCase
         $application = $this->createCorrectionRequest($attendance);
 
         $response = $this->actingAs($admin)
-            ->post('/stamp_correction_request/approve/' . $application->id);
+            ->post('/stamp_correction_request/approve/'.$application->id);
 
         $this->assertDatabaseHas('stamp_correction_requests', [
             'id' => $application->id,
@@ -113,7 +113,7 @@ class AdminStampCorrectionApprovalTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)
-            ->post('/stamp_correction_request/approve/' . $application->id);
+            ->post('/stamp_correction_request/approve/'.$application->id);
 
         $response->assertRedirect();
 

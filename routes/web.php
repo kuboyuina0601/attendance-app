@@ -1,12 +1,13 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\StampCorrectionRequestController;
 use App\Http\Controllers\AdminAttendanceController;
-use App\Http\Controllers\AdminStaffController;
 use App\Http\Controllers\AdminStaffAttendanceController;
+use App\Http\Controllers\AdminStaffController;
 use App\Http\Controllers\AdminStampCorrectionRequestController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendanceReportController;
+use App\Http\Controllers\StampCorrectionRequestController;
+use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
 // /にアクセスした場合は、ログイン画面にリダイレクト
@@ -65,7 +66,7 @@ Route::middleware(['auth', 'verified', 'general.user'])->group(function () {
 
     // 一般ユーザー：マイ勤怠レポート
     Route::get('/attendance/report', [
-        \App\Http\Controllers\AttendanceReportController::class,
+        AttendanceReportController::class,
         'index',
     ])->name('attendance.report');
 
@@ -96,8 +97,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/attendance/{id}', [
         AdminAttendanceController::class,
         'update',
-        ])->whereNumber('id')
-            ->name('admin.attendance.update');
+    ])->whereNumber('id')
+        ->name('admin.attendance.update');
 
     // 管理者：スタッフ一覧
     Route::get('/admin/staff/list', [
@@ -144,7 +145,7 @@ Route::get('/attendance/{id}', function ($id) {
     $user = auth()->user();
 
     if ($user->admin_status) {
-        return redirect('/admin/attendance/' . $id);
+        return redirect('/admin/attendance/'.$id);
     }
 
     return app(AttendanceController::class)->show($id);

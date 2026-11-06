@@ -2,7 +2,6 @@
 
 namespace App\Http\Responses;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Laravel\Fortify\Contracts\LogoutResponse as LogoutResponseContract;
 

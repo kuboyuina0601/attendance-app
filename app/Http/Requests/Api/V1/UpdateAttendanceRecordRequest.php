@@ -47,13 +47,12 @@ class UpdateAttendanceRecordRequest extends FormRequest
         ];
     }
 
-
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator) {
             if (
-                !$this->exists('clock_in') &&
-                !$this->exists('clock_out')
+                ! $this->exists('clock_in') &&
+                ! $this->exists('clock_out')
             ) {
                 return;
             }
@@ -89,7 +88,6 @@ class UpdateAttendanceRecordRequest extends FormRequest
             }
         });
     }
-
 
     public function messages(): array
     {

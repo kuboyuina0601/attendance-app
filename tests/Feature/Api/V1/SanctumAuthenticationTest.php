@@ -206,7 +206,6 @@ class SanctumAuthenticationTest extends TestCase
             );
     }
 
-
     /**
      * トークンなしでは勤怠を更新できない
      */
@@ -245,5 +244,4 @@ class SanctumAuthenticationTest extends TestCase
         $response->assertUnauthorized()
             ->assertJsonPath('message', 'Unauthenticated.');
     }
-
 }

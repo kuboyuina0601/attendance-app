@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -13,7 +14,7 @@ return new class extends Migration {
         Schema::create('stamp_correction_request_breaks', function (Blueprint $table) {
             $table->id();
 
-            //どの修正申請の休憩か
+            // どの修正申請の休憩か
             $table->foreignId('stamp_correction_request_id')
                 ->constrained(
                     table: 'stamp_correction_requests',
@@ -21,7 +22,7 @@ return new class extends Migration {
                 )
                 ->cascadeOnDelete();
 
-            //修正希望の休憩時間
+            // 修正希望の休憩時間
             $table->time('new_break_in');
             $table->time('new_break_out');
 

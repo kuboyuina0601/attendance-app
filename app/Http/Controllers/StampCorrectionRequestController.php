@@ -7,18 +7,18 @@ use App\Models\Attendance;
 use App\Models\StampCorrectionRequest;
 use App\Models\StampCorrectionRequestBreak;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Database\Eloquent\Builder;
 
 class StampCorrectionRequestController extends Controller
 {
     /**
      * 勤怠修正申請を新規登録する
      *
-     * @param StoreStampCorrectionRequest $request 修正申請の内容を受け取るリクエスト
-     * @param int $id 修正対象の勤怠ID
+     * @param  StoreStampCorrectionRequest  $request  修正申請の内容を受け取るリクエスト
+     * @param  int  $id  修正対象の勤怠ID
      * @return RedirectResponse 前の画面へのリダイレクトレスポンス
      */
     public function store(
@@ -139,7 +139,7 @@ class StampCorrectionRequestController extends Controller
     /**
      * 指定した勤怠修正申請の詳細を表示する
      *
-     * @param int $id 表示する勤怠修正申請ID
+     * @param  int  $id  表示する勤怠修正申請ID
      * @return View 勤怠詳細画面
      */
     public function show(int $id): View

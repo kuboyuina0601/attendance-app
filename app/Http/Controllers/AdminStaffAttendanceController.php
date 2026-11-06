@@ -6,8 +6,8 @@ use App\Models\Attendance;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
-use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AdminStaffAttendanceController extends Controller
@@ -15,8 +15,8 @@ class AdminStaffAttendanceController extends Controller
     /**
      * 指定したユーザーの月別勤怠一覧を表示する
      *
-     * @param Request $request 月の指定を受け取るリクエスト
-     * @param int $id 勤怠一覧を表示するユーザーID
+     * @param  Request  $request  月の指定を受け取るリクエスト
+     * @param  int  $id  勤怠一覧を表示するユーザーID
      * @return View 勤怠一覧画面
      */
     public function index(Request $request, int $id): View
@@ -45,7 +45,7 @@ class AdminStaffAttendanceController extends Controller
             ])
             ->get()
             ->keyBy(
-                fn(Attendance $attendance): string => $attendance->work_date->format('Y-m-d')
+                fn (Attendance $attendance): string => $attendance->work_date->format('Y-m-d')
             );
 
         $formattedAttendanceRecords = collect(
@@ -59,7 +59,7 @@ class AdminStaffAttendanceController extends Controller
             if ($attendance) {
                 $totalBreakSeconds = $attendance->attendanceBreaks
                     ->sum(function ($break): int {
-                        if (!$break->break_in || !$break->break_out) {
+                        if (! $break->break_in || ! $break->break_out) {
                             return 0;
                         }
 
@@ -84,9 +84,9 @@ class AdminStaffAttendanceController extends Controller
             return [
                 'id' => $attendance?->id,
                 'date' => $day->format('m/d')
-                    . '('
-                    . ['日', '月', '火', '水', '木', '金', '土'][$day->dayOfWeek]
-                    . ')',
+                    .'('
+                    .['日', '月', '火', '水', '木', '金', '土'][$day->dayOfWeek]
+                    .')',
                 'clock_in' => $attendance?->clock_in
                     ? substr((string) $attendance->clock_in, 0, 5)
                     : '',
@@ -117,7 +117,7 @@ class AdminStaffAttendanceController extends Controller
     /**
      * 指定したユーザーの月別勤怠データをCSV形式で出力する
      *
-     * @param Request $request ユーザーIDと対象年月を受け取るリクエスト
+     * @param  Request  $request  ユーザーIDと対象年月を受け取るリクエスト
      * @return StreamedResponse CSVファイルのダウンロードレスポンス
      */
     public function export(Request $request): StreamedResponse
@@ -146,7 +146,7 @@ class AdminStaffAttendanceController extends Controller
             ])
             ->get()
             ->keyBy(
-                fn(Attendance $attendance): string => $attendance->work_date->format('Y-m-d')
+                fn (Attendance $attendance): string => $attendance->work_date->format('Y-m-d')
             );
 
         $fileName = sprintf(
@@ -184,7 +184,7 @@ class AdminStaffAttendanceController extends Controller
                     if ($attendance) {
                         $totalBreakSeconds = $attendance->attendanceBreaks
                             ->sum(function ($break): int {
-                                if (!$break->break_in || !$break->break_out) {
+                                if (! $break->break_in || ! $break->break_out) {
                                     return 0;
                                 }
 
@@ -207,9 +207,9 @@ class AdminStaffAttendanceController extends Controller
                     }
 
                     $formattedDate = $day->format('Y/m/d')
-                        . '('
-                        . ['日', '月', '火', '水', '木', '金', '土'][$day->dayOfWeek]
-                        . ')';
+                        .'('
+                        .['日', '月', '火', '水', '木', '金', '土'][$day->dayOfWeek]
+                        .')';
 
                     $clockInTime = $attendance?->clock_in
                         ? substr((string) $attendance->clock_in, 0, 5)

@@ -5,20 +5,20 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateAdminAttendanceRequest;
 use App\Models\Attendance;
 use App\Models\AttendanceBreak;
+use App\Models\StampCorrectionRequest;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\StampCorrectionRequest;
 
 class AdminAttendanceController extends Controller
 {
     /**
      * 指定した日付の全ユーザーの勤怠一覧を表示する
      *
-     * @param Request $request 表示する日付を受け取るリクエスト
+     * @param  Request  $request  表示する日付を受け取るリクエスト
      * @return View 管理者向け勤怠一覧画面
      */
     public function index(Request $request): View
@@ -91,7 +91,7 @@ class AdminAttendanceController extends Controller
     /**
      * 指定した勤怠の詳細を表示する
      *
-     * @param int $id 表示する勤怠ID
+     * @param  int  $id  表示する勤怠ID
      * @return View 管理者向け勤怠詳細画面
      */
     public function show(int $id): View
@@ -152,8 +152,8 @@ class AdminAttendanceController extends Controller
     /**
      * 管理者が勤怠情報と休憩情報を修正する
      *
-     * @param UpdateAdminAttendanceRequest $request 更新内容を受け取るリクエスト
-     * @param int $id 更新対象の勤怠ID
+     * @param  UpdateAdminAttendanceRequest  $request  更新内容を受け取るリクエスト
+     * @param  int  $id  更新対象の勤怠ID
      * @return RedirectResponse 勤怠詳細画面へのリダイレクトレスポンス
      */
     public function update(
@@ -195,37 +195,47 @@ class AdminAttendanceController extends Controller
                 ->orderBy('id')
                 ->get();
 
-            $usedBreakIds = [];
 
-            collect(array_unique(array_merge(
+            $breakIns = $validated['new_break_in'] ?? [];
+            $breakOuts = $validated['new_break_out'] ?? [];
+
+            $existingBreaks = $attendance->attendanceBreaks()
+                ->orderBy('id')
+                ->get();
+
+            $usedBreakIds = collect(array_unique(array_merge(
                 array_keys($breakIns),
                 array_keys($breakOuts)
-            )))->each(function ($index) use ($breakIns, $breakOuts, $existingBreaks, $attendance, &$usedBreakIds): void {
-                $breakIn = $breakIns[$index] ?? null;
-                $breakOut = $breakOuts[$index] ?? null;
+            )))
+                ->map(function (int|string $index) use ($breakIns, $breakOuts, $existingBreaks, $attendance): ?int {
+                    $breakIn = $breakIns[$index] ?? null;
+                    $breakOut = $breakOuts[$index] ?? null;
 
-                if (blank($breakIn) && blank($breakOut)) {
-                    return;
-                }
+                    if (blank($breakIn) && blank($breakOut)) {
+                        return null;
+                    }
 
-                $break = $existingBreaks->get((int) $index);
+                    $break = $existingBreaks->get((int) $index);
 
-                if ($break) {
-                    $break->update([
-                        'break_in' => $breakIn,
-                        'break_out' => $breakOut,
-                    ]);
+                    if ($break) {
+                        $break->update([
+                            'break_in' => $breakIn,
+                            'break_out' => $breakOut,
+                        ]);
 
-                    $usedBreakIds[] = $break->id;
-                } else {
+                        return $break->id;
+                    }
+
                     $newBreak = $attendance->attendanceBreaks()->create([
                         'break_in' => $breakIn,
                         'break_out' => $breakOut,
                     ]);
 
-                    $usedBreakIds[] = $newBreak->id;
-                }
-            });
+                    return $newBreak->id;
+                })
+                ->filter()
+                ->values()
+                ->all();
 
             $attendance->attendanceBreaks()
                 ->whereNotIn('id', $usedBreakIds)
@@ -238,7 +248,7 @@ class AdminAttendanceController extends Controller
     /**
      * 秒数を時:分の形式に変換する
      *
-     * @param int $seconds 変換する秒数
+     * @param  int  $seconds  変換する秒数
      * @return string 時:分の形式に変換した時間
      */
     private function formatDuration(int $seconds): string

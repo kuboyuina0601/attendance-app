@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 use App\Models\Attendance;
 use App\Models\AttendanceBreak;
 use App\Models\StampCorrectionRequestBreak;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class AttendanceController extends Controller
 {
@@ -29,13 +29,13 @@ class AttendanceController extends Controller
             ->with('attendanceBreaks')
             ->first();
 
-        if (!$attendance) {
+        if (! $attendance) {
             $user->attendance_status = '勤務外';
         } elseif ($attendance->clock_out) {
             $user->attendance_status = '退勤済';
         } elseif (
             $attendance->attendanceBreaks->contains(
-                fn(AttendanceBreak $break): bool => $break->break_out === null
+                fn (AttendanceBreak $break): bool => $break->break_out === null
             )
         ) {
             $user->attendance_status = '休憩中';
@@ -55,7 +55,7 @@ class AttendanceController extends Controller
     /**
      * 出勤・退勤・休憩の打刻を登録する
      *
-     * @param Request $request 打刻操作の種類を受け取るリクエスト
+     * @param  Request  $request  打刻操作の種類を受け取るリクエスト
      * @return RedirectResponse 前の画面へのリダイレクトレスポンス
      */
     public function store(Request $request): RedirectResponse
@@ -90,7 +90,7 @@ class AttendanceController extends Controller
                 return;
             }
 
-            if (!$attendance) {
+            if (! $attendance) {
                 throw ValidationException::withMessages([
                     'action' => '先に出勤を登録してください。',
                 ]);
@@ -123,7 +123,7 @@ class AttendanceController extends Controller
             }
 
             if ($action === 'break_out') {
-                if (!$openBreak) {
+                if (! $openBreak) {
                     throw ValidationException::withMessages([
                         'action' => '終了できる休憩がありません。',
                     ]);
@@ -155,7 +155,7 @@ class AttendanceController extends Controller
     /**
      * ログインユーザーの月別勤怠一覧を表示する
      *
-     * @param Request $request 表示する年月を受け取るリクエスト
+     * @param  Request  $request  表示する年月を受け取るリクエスト
      * @return View 月別勤怠一覧画面
      */
     public function index(Request $request): View
@@ -182,7 +182,7 @@ class AttendanceController extends Controller
             ])
             ->get()
             ->keyBy(
-                fn(Attendance $attendance): string => $attendance->work_date->format('Y-m-d')
+                fn (Attendance $attendance): string => $attendance->work_date->format('Y-m-d')
             );
 
         $formattedAttendanceRecords = collect(
@@ -219,9 +219,9 @@ class AttendanceController extends Controller
             return [
                 'id' => $attendance?->id,
                 'date' => $day->format('m/d')
-                    . '('
-                    . ['日', '月', '火', '水', '木', '金', '土'][$day->dayOfWeek]
-                    . ')',
+                    .'('
+                    .['日', '月', '火', '水', '木', '金', '土'][$day->dayOfWeek]
+                    .')',
                 'clock_in' => $attendance?->clock_in
                     ? substr((string) $attendance->clock_in, 0, 5)
                     : '',
@@ -251,7 +251,7 @@ class AttendanceController extends Controller
     /**
      * 指定した勤怠の詳細を表示する
      *
-     * @param int $id 表示する勤怠ID
+     * @param  int  $id  表示する勤怠ID
      * @return View 勤怠詳細画面
      */
     public function show(int $id): View

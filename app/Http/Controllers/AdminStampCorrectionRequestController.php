@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AttendanceBreak;
 use App\Models\StampCorrectionRequest;
 use App\Models\StampCorrectionRequestBreak;
-use App\Models\AttendanceBreak;
+use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -55,7 +56,7 @@ class AdminStampCorrectionRequestController extends Controller
     /**
      * 指定した勤怠修正申請の詳細を表示する
      *
-     * @param int $stamp_correction_request_id 表示する勤怠修正申請ID
+     * @param  int  $stamp_correction_request_id  表示する勤怠修正申請ID
      * @return View 勤怠修正申請詳細画面
      */
     public function show(int $stamp_correction_request_id): View
@@ -67,11 +68,11 @@ class AdminStampCorrectionRequestController extends Controller
 
         $user = $application->attendance?->user;
 
-        abort_if(!$user || $user->admin_status, 404);
+        abort_if(! $user || $user->admin_status, 404);
 
         $application->new_date = $application->attendance->work_date;
-        $application->new_clock_in = \Carbon\Carbon::parse($application->new_clock_in)->format('H:i');
-        $application->new_clock_out = \Carbon\Carbon::parse($application->new_clock_out)->format('H:i');
+        $application->new_clock_in = Carbon::parse($application->new_clock_in)->format('H:i');
+        $application->new_clock_out = Carbon::parse($application->new_clock_out)->format('H:i');
 
         $application->setRelation(
             'proposalBreaks',
@@ -94,7 +95,7 @@ class AdminStampCorrectionRequestController extends Controller
     /**
      * 勤怠修正申請を承認し、勤怠情報を更新する
      *
-     * @param int $stamp_correction_request_id 承認する勤怠修正申請ID
+     * @param  int  $stamp_correction_request_id  承認する勤怠修正申請ID
      * @return RedirectResponse 前の画面へのリダイレクトレスポンス
      */
     public function update(

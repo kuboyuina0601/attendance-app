@@ -188,7 +188,7 @@ class AttendanceRecordWriteTest extends TestCase
         ]);
 
         $response = $this->actingAs($user, 'sanctum')
-            ->putJson('/api/v1/attendance-records/' . $attendance->id, [
+            ->putJson('/api/v1/attendance-records/'.$attendance->id, [
                 'date' => '2026-10-02',
                 'clock_in' => '09:30:00',
                 'clock_out' => '18:30:00',
@@ -225,7 +225,7 @@ class AttendanceRecordWriteTest extends TestCase
         ]);
 
         $response = $this->actingAs($user, 'sanctum')
-            ->patchJson('/api/v1/attendance-records/' . $attendance->id, [
+            ->patchJson('/api/v1/attendance-records/'.$attendance->id, [
                 'comment' => '備考のみ更新',
             ]);
 
@@ -255,7 +255,7 @@ class AttendanceRecordWriteTest extends TestCase
         ]);
 
         $response = $this->actingAs($user, 'sanctum')
-            ->patchJson('/api/v1/attendance-records/' . $attendance->id, [
+            ->patchJson('/api/v1/attendance-records/'.$attendance->id, [
                 'clock_in' => '10:00:00',
             ]);
 
@@ -285,7 +285,7 @@ class AttendanceRecordWriteTest extends TestCase
         ]);
 
         $response = $this->actingAs($user, 'sanctum')
-            ->patchJson('/api/v1/attendance-records/' . $attendance->id, [
+            ->patchJson('/api/v1/attendance-records/'.$attendance->id, [
                 'clock_out' => '19:00:00',
             ]);
 
@@ -315,7 +315,7 @@ class AttendanceRecordWriteTest extends TestCase
         ]);
 
         $response = $this->actingAs($user, 'sanctum')
-            ->patchJson('/api/v1/attendance-records/' . $attendance->id, [
+            ->patchJson('/api/v1/attendance-records/'.$attendance->id, [
                 'clock_in' => '10:00:00',
                 'clock_out' => '19:00:00',
             ]);
@@ -346,7 +346,7 @@ class AttendanceRecordWriteTest extends TestCase
         ]);
 
         $response = $this->actingAs($user, 'sanctum')
-            ->patchJson('/api/v1/attendance-records/' . $attendance->id, [
+            ->patchJson('/api/v1/attendance-records/'.$attendance->id, [
                 'clock_out' => '08:00:00',
             ]);
 
@@ -378,7 +378,7 @@ class AttendanceRecordWriteTest extends TestCase
         ]);
 
         $response = $this->actingAs($user, 'sanctum')
-            ->patchJson('/api/v1/attendance-records/' . $attendance->id, [
+            ->patchJson('/api/v1/attendance-records/'.$attendance->id, [
                 'clock_in' => '19:00:00',
             ]);
 
@@ -408,7 +408,7 @@ class AttendanceRecordWriteTest extends TestCase
         ]);
 
         $response = $this->actingAs($user, 'sanctum')
-            ->putJson('/api/v1/attendance-records/' . $attendance->id, [
+            ->putJson('/api/v1/attendance-records/'.$attendance->id, [
                 'date' => '2026-10-02',
                 'clock_in' => '09:00:00',
                 'clock_out' => '18:00:00',
@@ -437,7 +437,7 @@ class AttendanceRecordWriteTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin, 'sanctum')
-            ->putJson('/api/v1/attendance-records/' . $attendance->id, [
+            ->putJson('/api/v1/attendance-records/'.$attendance->id, [
                 'date' => '2026-10-02',
                 'clock_in' => '09:00:00',
                 'clock_out' => '18:00:00',
@@ -463,7 +463,7 @@ class AttendanceRecordWriteTest extends TestCase
         ]);
 
         $response = $this->actingAs($user, 'sanctum')
-            ->deleteJson('/api/v1/attendance-records/' . $attendance->id);
+            ->deleteJson('/api/v1/attendance-records/'.$attendance->id);
 
         $response->assertNoContent();
 
@@ -485,7 +485,7 @@ class AttendanceRecordWriteTest extends TestCase
         ]);
 
         $response = $this->actingAs($user, 'sanctum')
-            ->deleteJson('/api/v1/attendance-records/' . $attendance->id);
+            ->deleteJson('/api/v1/attendance-records/'.$attendance->id);
 
         $response->assertForbidden()
             ->assertExactJson([
@@ -562,7 +562,6 @@ class AttendanceRecordWriteTest extends TestCase
         ]);
     }
 
-
     /**
      * 備考を255文字に更新できる
      */
@@ -578,7 +577,7 @@ class AttendanceRecordWriteTest extends TestCase
         $comment = str_repeat('あ', 255);
 
         $response = $this->actingAs($user, 'sanctum')
-            ->patchJson('/api/v1/attendance-records/' . $attendance->id, [
+            ->patchJson('/api/v1/attendance-records/'.$attendance->id, [
                 'comment' => $comment,
             ]);
 

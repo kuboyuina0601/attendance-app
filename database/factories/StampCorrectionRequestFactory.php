@@ -3,10 +3,12 @@
 namespace Database\Factories;
 
 use App\Models\Attendance;
+use App\Models\StampCorrectionRequest;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\StampCorrectionRequest>
+ * @extends Factory<StampCorrectionRequest>
  */
 class StampCorrectionRequestFactory extends Factory
 {
@@ -19,7 +21,7 @@ class StampCorrectionRequestFactory extends Factory
     {
         $newClockIn = fake()->dateTimeBetween('08:00:00', '10:00:00');
 
-        $newClockOut = \Carbon\Carbon::instance($newClockIn)
+        $newClockOut = Carbon::instance($newClockIn)
             ->addHours(fake()->numberBetween(8, 10));
 
         return [
