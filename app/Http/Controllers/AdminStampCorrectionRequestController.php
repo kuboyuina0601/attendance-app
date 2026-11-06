@@ -123,6 +123,7 @@ class AdminStampCorrectionRequestController extends Controller
             $attendance->update([
                 'clock_in' => $application->new_clock_in,
                 'clock_out' => $application->new_clock_out,
+                'comment' => $application->comment,
             ]);
 
             $attendance->attendanceBreaks()->delete();

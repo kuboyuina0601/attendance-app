@@ -52,13 +52,13 @@ class StampCorrectionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'new_clock_in.required' => '出勤時間が不適切な値です',
-            'new_clock_in.date_format' => '出勤時間が不適切な値です',
-            'new_clock_in.before' => '出勤時間が不適切な値です',
+            'new_clock_in.required' => '出勤時間もしくは退勤時間が不適切な値です',
+            'new_clock_in.date_format' => '出勤時間もしくは退勤時間が不適切な値です',
+            'new_clock_in.before' => '出勤時間もしくは退勤時間が不適切な値です',
 
-            'new_clock_out.required' => '退勤時間が不適切な値です',
-            'new_clock_out.date_format' => '退勤時間が不適切な値です',
-            'new_clock_out.after' => '退勤時間が不適切な値です',
+            'new_clock_out.required' => '出勤時間もしくは退勤時間が不適切な値です',
+            'new_clock_out.date_format' => '出勤時間もしくは退勤時間が不適切な値です',
+            'new_clock_out.after' => '出勤時間もしくは退勤時間が不適切な値です',
 
             'new_break_in.*.date_format' => '休憩時間が不適切な値です',
             'new_break_out.*.date_format' => '休憩時間が不適切な値です',
