@@ -8,16 +8,16 @@
 - 管理者勤怠一覧画面:`http://localhost/admin/attendance/list`</br>
 - phpMyAdmin: `http://localhost:8080`</br>
 
-# ログイン情報
+### ログイン情報
 
-一般ユーザー
+一般ユーザー<br>
 メールアドレス：user1@example.com
 パスワード：password
 
 メールアドレス：user2@example.com
 パスワード：password
 
-管理者
+管理者<br>
 メールアドレス：user3@example.com
 パスワード：password
 
@@ -114,4 +114,4 @@ sail artisan test
 
 ## データベース設計（ER図）
 
-[ER図はこちら](./er.drawio)
+![ER図はこちら](./er.drawio.png)
