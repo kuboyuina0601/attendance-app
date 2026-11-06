@@ -1,17 +1,11 @@
 # COACHTECH 勤怠管理アプリ
 
-## 概要
-
-ある企業が開発した独自の勤怠アプリ
-Laravelを用いて作成したお問い合わせ管理Webアプリケーションおよび公開APIサービスです。
-管理画面でのお問い合わせ・タグのCRUD操作に加え、外部連携用のAPIと単体・機能テストを実装しています。
-
 ## 開発環境URL
 
 - 一般ユーザーログイン画面: `http://localhost/login`</br>
 - 管理者ログイン画面: `http://localhost/admin/login`</br>
 - 一般ユーザー勤怠画面:`http://localhost/attendance`
-- 管理者勤怠一覧画面:`http://localhost/attendance/list`</br>
+- 管理者勤怠一覧画面:`http://localhost/admin/attendance/list`</br>
 - phpMyAdmin: `http://localhost:8080`</br>
 
 ## 作者
@@ -24,19 +18,19 @@ Laravelを用いて作成したお問い合わせ管理Webアプリケーショ�
 - バックエンド: PHP 8.2 / Laravel 10.3
 - データベース: MySQL 8.0 / SQLite (テスト環境)
 - Webサーバー: Nginx
-- フロントエンド: Vue.js, Tailwind CSS 3.4.0
+- フロントエンド: Tailwind CSS 3.4.0
 - 開発ツール: Docker, Laravel Sail, phpMyAdmin, VS Code
-- バージョン管理: Git, GitHub (Issue / PR)
+- バージョン管理: Git, GitHub
 
 ## 実装したAPIのエンドポイント一覧
 
-| メソッド        | パス                    | 概要                                               |
-| :-------------- | :---------------------- | :------------------------------------------------- |
-| `GET`           | `/api/v1/contacts`      | お問い合わせ一覧取得（検索・ページネーション対応） |
-| `POST`          | `/api/v1/contacts`      | お問い合わせ新規登録                               |
-| `GET`           | `/api/v1/contacts/{id}` | お問い合わせ詳細取得                               |
-| `PUT` / `PATCH` | `/api/v1/contacts/{id}` | お問い合わせ情報更新                               |
-| `DELETE`        | `/api/v1/contacts/{id}` | お問い合わせ削除                                   |
+| メソッド | パス | 概要 | 認証 |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/attendance-records` | 勤怠一覧取得（検索・ページネーション対応） | 不要 |
+| `POST` | `/api/v1/attendance-records` | 勤怠情報の新規登録 | 必要（Sanctum） |
+| `GET` | `/api/v1/attendance-records/{attendanceRecord}` | 勤怠詳細取得 | 不要 |
+| `PUT` / `PATCH` | `/api/v1/attendance-records/{attendanceRecord}` | 勤怠情報の更新 | 必要（Sanctum） |
+| `DELETE` | `/api/v1/attendance-records/{attendanceRecord}` | 勤怠情報の削除 | 必要（Sanctum） |
 
 ## 環境構築手順
 
@@ -106,4 +100,5 @@ sail artisan test
 ```
 
 ## データベース設計（ER図）
-<a href="">
+
+[ER図はこちら](./er.drawio)
