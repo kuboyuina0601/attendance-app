@@ -7,6 +7,8 @@ use App\Models\StampCorrectionRequest;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use App\Models\StampCorrectionRequestBreak;
+use App\Models\AttendanceBreak;
 
 class AdminStampCorrectionApprovalTest extends TestCase
 {
@@ -90,6 +92,49 @@ class AdminStampCorrectionApprovalTest extends TestCase
             'clock_in' => '09:30:00',
             'clock_out' => '18:30:00',
         ]);
+    }
+
+    public function test_approval_updates_attendance_breaks_and_approval_timestamp(): void
+    {
+        [$admin, $user, $attendance] = $this->createAdminUserAndAttendance();
+
+        AttendanceBreak::factory()->create([
+            'attendance_id' => $attendance->id,
+            'break_in' => '12:00:00',
+            'break_out' => '13:00:00',
+        ]);
+
+        $application = $this->createCorrectionRequest($attendance);
+
+        StampCorrectionRequestBreak::factory()->create([
+            'stamp_correction_request_id' => $application->id,
+            'new_break_in' => '12:30:00',
+            'new_break_out' => '13:15:00',
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->post('/stamp_correction_request/approve/' . $application->id);
+
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('attendance_breaks', [
+            'attendance_id' => $attendance->id,
+            'break_in' => '12:30:00',
+            'break_out' => '13:15:00',
+        ]);
+
+        $this->assertDatabaseMissing('attendance_breaks', [
+            'attendance_id' => $attendance->id,
+            'break_in' => '12:00:00',
+            'break_out' => '13:00:00',
+        ]);
+
+        $this->assertDatabaseHas('stamp_correction_requests', [
+            'id' => $application->id,
+            'approval_status' => '承認済み',
+        ]);
+
+        $this->assertNotNull($application->fresh()->approved_at);
     }
 
     private function createAdminUserAndAttendance(): array

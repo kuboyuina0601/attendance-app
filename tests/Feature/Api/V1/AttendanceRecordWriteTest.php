@@ -488,13 +488,13 @@ class AttendanceRecordWriteTest extends TestCase
             ->deleteJson('/api/v1/attendance-records/' . $attendance->id);
 
         $response->assertForbidden()
-            ->assertJsonPath(
-                'error',
-                'この操作を実行する権限がありません。'
-            );
+            ->assertExactJson([
+                'error' => 'この操作を実行する権限がありません。',
+            ]);
 
         $this->assertDatabaseHas('attendance_records', [
             'id' => $attendance->id,
+            'user_id' => $otherUser->id,
         ]);
     }
 
