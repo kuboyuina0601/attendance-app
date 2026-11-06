@@ -14,11 +14,11 @@ class IndexAttendanceRecordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['sometimes', 'integer'],
-            'date' => ['sometimes', 'date_format:Y-m-d'],
-            'month' => ['sometimes', 'date_format:Y-m'],
-            'page' => ['sometimes', 'integer', 'min:1'],
-            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+            'user_id' => ['sometimes', 'nullable', 'integer'],
+            'date' => ['sometimes', 'nullable', 'date_format:Y-m-d'],
+            'month' => ['sometimes', 'nullable', 'date_format:Y-m'],
+            'page' => ['sometimes', 'nullable', 'integer', 'min:1'],
+            'per_page' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:100'],
         ];
     }
 
