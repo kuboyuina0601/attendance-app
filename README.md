@@ -37,13 +37,13 @@
 
 ## 実装したAPIのエンドポイント一覧
 
-| メソッド        | パス                                            | 概要                                       | 認証            |
-| :-------------- | :---------------------------------------------- | :----------------------------------------- | :-------------- |
-| `GET`           | `/api/v1/attendance-records`                    | 勤怠一覧取得（検索・ページネーション対応） | 不要            |
-| `POST`          | `/api/v1/attendance-records`                    | 勤怠情報の新規登録                         | 必要（Sanctum） |
-| `GET`           | `/api/v1/attendance-records/{attendanceRecord}` | 勤怠詳細取得                               | 不要            |
-| `PUT` / `PATCH` | `/api/v1/attendance-records/{attendanceRecord}` | 勤怠情報の更新                             | 必要（Sanctum） |
-| `DELETE`        | `/api/v1/attendance-records/{attendanceRecord}` | 勤怠情報の削除                             | 必要（Sanctum） |
+| メソッド        | パス                                            | 概要                                       |
+| :-------------- | :---------------------------------------------- | :----------------------------------------- |
+| `GET`           | `/api/v1/attendance-records`                    | 勤怠一覧取得（検索・ページネーション対応） |
+| `POST`          | `/api/v1/attendance-records`                    | 勤怠情報の新規登録                         |
+| `GET`           | `/api/v1/attendance-records/{attendanceRecord}` | 勤怠詳細取得                               |
+| `PUT` / `PATCH` | `/api/v1/attendance-records/{attendanceRecord}` | 勤怠情報の更新                             |
+| `DELETE`        | `/api/v1/attendance-records/{attendanceRecord}` | 勤怠情報の削除                             |
 
 ## 環境構築手順
 
