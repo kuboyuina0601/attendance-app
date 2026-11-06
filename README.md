@@ -1,22 +1,109 @@
-# アプリケーション名
+# COACHTECH 勤怠管理アプリ
 
-## URL
+## 概要
 
-## 環境構築
+ある企業が開発した独自の勤怠アプリ
+Laravelを用いて作成したお問い合わせ管理Webアプリケーションおよび公開APIサービスです。
+管理画面でのお問い合わせ・タグのCRUD操作に加え、外部連携用のAPIと単体・機能テストを実装しています。
 
-- Dockerのビルドからマイグレーション、シーディングまでを記述する
+## 開発環境URL
+
+- 一般ユーザーログイン画面: `http://localhost/login`</br>
+- 管理者ログイン画面: `http://localhost/admin/login`</br>
+- 一般ユーザー勤怠画面:`http://localhost/attendance`
+- 管理者勤怠一覧画面:`http://localhost/attendance/list`</br>
+- phpMyAdmin: `http://localhost:8080`</br>
+
+## 作者
+
+- 久保 唯菜
 
 ## 使用技術（環境・技術構成）
 
-- 例）Laravel 8.x(言語やフレームワーク、バージョンなどが記載さえていると良い)
+- OS: Linux (Docker環境)
+- バックエンド: PHP 8.2 / Laravel 10.3
+- データベース: MySQL 8.0 / SQLite (テスト環境)
+- Webサーバー: Nginx
+- フロントエンド: Vue.js, Tailwind CSS 3.4.0
+- 開発ツール: Docker, Laravel Sail, phpMyAdmin, VS Code
+- バージョン管理: Git, GitHub (Issue / PR)
 
-## ER図
+## 実装したAPIのエンドポイント一覧
 
-<--- 作成したER図の画像 --->
+| メソッド        | パス                    | 概要                                               |
+| :-------------- | :---------------------- | :------------------------------------------------- |
+| `GET`           | `/api/v1/contacts`      | お問い合わせ一覧取得（検索・ページネーション対応） |
+| `POST`          | `/api/v1/contacts`      | お問い合わせ新規登録                               |
+| `GET`           | `/api/v1/contacts/{id}` | お問い合わせ詳細取得                               |
+| `PUT` / `PATCH` | `/api/v1/contacts/{id}` | お問い合わせ情報更新                               |
+| `DELETE`        | `/api/v1/contacts/{id}` | お問い合わせ削除                                   |
 
-## URL
+## 環境構築手順
 
-・開発環境：https://locathost/
-・phpMyAdmin：https://localhost:8080/
+動作確認の際は、以下の手順でローカル環境の構築を行ってください。
 
-## テスト
+1. リポジトリからダウンロード
+
+```bash
+git clone git@github.com:kuboyuina0601/attendance-app.git
+cd attendance-app
+```
+
+2. 環境変数を設定
+
+```bash
+cp .env.example .env
+```
+
+3. 環境変数（.env）の調整
+   .env ファイルを開き、データベース接続情報が以下になっているか確認・修正します。
+
+```bash
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=sail
+DB_PASSWORD=password
+```
+
+4. Laravel Sailのインストール
+
+```bash
+docker run --rm \
+-u "$(id -u):$(id -g)" \
+-v "$(pwd):/var/www/html" \
+-w /var/www/html \
+-e COMPOSER_CACHE_DIR=/tmp/composer_cache \
+laravelsail/php82-composer:latest \
+composer require laravel/sail --dev
+```
+
+5. Dockerコンテナの起動
+
+```bash
+sail up -d
+```
+
+6. アプリケーションキー生成とマイグレーション&シーディングの実行
+
+```bash
+sail artisan key:generate
+sail artisan migrate:fresh --seed
+```
+
+7. フロントエンド用パッケージのインストールと開発サーバの起動
+
+```bash
+sail npm install
+sail npm run dev
+```
+
+8. テストプログラムの実行
+
+```bash
+sail artisan test
+```
+
+## データベース設計（ER図）
+<a href="">

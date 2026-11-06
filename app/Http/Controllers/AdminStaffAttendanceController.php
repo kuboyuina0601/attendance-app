@@ -206,7 +206,7 @@ class AdminStaffAttendanceController extends Controller
                         }
                     }
 
-                    $formattedDate = $day->format('m/d')
+                    $formattedDate = $day->format('Y/m/d')
                         . '('
                         . ['日', '月', '火', '水', '木', '金', '土'][$day->dayOfWeek]
                         . ')';
