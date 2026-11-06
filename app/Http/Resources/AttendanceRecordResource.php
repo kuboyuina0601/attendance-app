@@ -43,11 +43,8 @@ class AttendanceRecordResource extends JsonResource
                 ])->values()
             ),
 
-            'applications' => $this->whenLoaded(
-                'stampCorrectionRequests',
-                fn() => $this->stampCorrectionRequests->map(fn($application) => [
-                    'id' => $application->id,
-                ])->values()
+            'applications' => ApplicationResource::collection(
+                $this->whenLoaded('stampCorrectionRequests')
             ),
         ];
     }

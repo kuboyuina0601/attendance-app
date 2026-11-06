@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Attendance extends Model
 {
     use HasFactory;
+    protected $table = 'attendances';
 
     protected $fillable = [
         'user_id',
@@ -32,7 +33,7 @@ class Attendance extends Model
         return $this->hasMany(AttendanceBreak::class);
     }
 
-    public function stampCorrectionRequests():HasMany
+    public function stampCorrectionRequests(): HasMany
     {
         return $this->hasMany(StampCorrectionRequest::class);
     }

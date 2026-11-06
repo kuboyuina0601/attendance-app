@@ -10,7 +10,9 @@ class UpdateAttendanceRecordRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $attendanceRecord = $this->route('attendanceRecord');
+
+        return $this->user()?->can('update', $attendanceRecord) ?? false;
     }
 
     public function rules(): array
