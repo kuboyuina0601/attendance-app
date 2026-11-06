@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Attendance extends Model
 {
     use HasFactory;
-    protected $table = 'attendances';
+    protected $table = 'attendance_records';
 
     protected $fillable = [
         'user_id',

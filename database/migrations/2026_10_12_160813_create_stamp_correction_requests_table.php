@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             //どの勤怠か
             $table->foreignId('attendance_id')
-                ->constrained('attendances')
+                ->constrained('attendance_records')
                 ->cascadeOnDelete();
             //修正希望の勤怠情報
             $table->time('new_clock_in');

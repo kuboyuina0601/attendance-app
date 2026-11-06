@@ -33,7 +33,7 @@ class AttendanceRecordWriteTest extends TestCase
             ->assertJsonPath('data.clock_out', '18:00:00')
             ->assertJsonPath('data.comment', '通常勤務');
 
-        $this->assertDatabaseHas('attendances', [
+        $this->assertDatabaseHas('attendance_records', [
             'user_id' => $user->id,
             'work_date' => '2026-10-01',
             'clock_in' => '09:00:00',
@@ -201,7 +201,7 @@ class AttendanceRecordWriteTest extends TestCase
             ->assertJsonPath('data.clock_out', '18:30:00')
             ->assertJsonPath('data.comment', '更新後の備考');
 
-        $this->assertDatabaseHas('attendances', [
+        $this->assertDatabaseHas('attendance_records', [
             'id' => $attendance->id,
             'work_date' => '2026-10-02',
             'clock_in' => '09:30:00',
@@ -232,7 +232,7 @@ class AttendanceRecordWriteTest extends TestCase
         $response->assertOk()
             ->assertJsonPath('data.comment', '備考のみ更新');
 
-        $this->assertDatabaseHas('attendances', [
+        $this->assertDatabaseHas('attendance_records', [
             'id' => $attendance->id,
             'comment' => '備考のみ更新',
             'work_date' => '2026-10-01',
@@ -263,7 +263,7 @@ class AttendanceRecordWriteTest extends TestCase
             ->assertJsonPath('data.clock_in', '10:00:00')
             ->assertJsonPath('data.clock_out', '18:00:00');
 
-        $this->assertDatabaseHas('attendances', [
+        $this->assertDatabaseHas('attendance_records', [
             'id' => $attendance->id,
             'clock_in' => '10:00:00',
             'clock_out' => '18:00:00',
@@ -295,7 +295,7 @@ class AttendanceRecordWriteTest extends TestCase
                 '退勤時刻は出勤時刻より後の時刻を指定してください。'
             );
 
-        $this->assertDatabaseHas('attendances', [
+        $this->assertDatabaseHas('attendance_records', [
             'id' => $attendance->id,
             'clock_in' => '09:00:00',
             'clock_out' => '18:00:00',
@@ -352,7 +352,7 @@ class AttendanceRecordWriteTest extends TestCase
 
         $response->assertOk();
 
-        $this->assertDatabaseHas('attendances', [
+        $this->assertDatabaseHas('attendance_records', [
             'id' => $attendance->id,
             'work_date' => '2026-10-02',
         ]);
@@ -374,7 +374,7 @@ class AttendanceRecordWriteTest extends TestCase
 
         $response->assertNoContent();
 
-        $this->assertDatabaseMissing('attendances', [
+        $this->assertDatabaseMissing('attendance_records', [
             'id' => $attendance->id,
         ]);
     }
@@ -400,7 +400,7 @@ class AttendanceRecordWriteTest extends TestCase
                 'この操作を実行する権限がありません。'
             );
 
-        $this->assertDatabaseHas('attendances', [
+        $this->assertDatabaseHas('attendance_records', [
             'id' => $attendance->id,
         ]);
     }

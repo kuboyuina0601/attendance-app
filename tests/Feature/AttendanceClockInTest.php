@@ -35,7 +35,7 @@ class AttendanceClockInTest extends TestCase
             $response->assertStatus(200);
             $response->assertSee('出勤中');
 
-            $this->assertDatabaseHas('attendances', [
+            $this->assertDatabaseHas('attendance_records', [
                 'user_id' => $user->id,
                 'work_date' => '2026-10-28',
                 'clock_in' => '09:15:00',

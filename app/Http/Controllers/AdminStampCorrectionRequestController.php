@@ -65,7 +65,9 @@ class AdminStampCorrectionRequestController extends Controller
             'stampCorrectionRequestBreaks',
         ])->findOrFail($stamp_correction_request_id);
 
-        $user = $application->attendance->user;
+        $user = $application->attendance?->user;
+
+        abort_if(!$user || $user->admin_status, 404);
 
         $application->new_date = $application->attendance->work_date;
         $application->new_clock_in = \Carbon\Carbon::parse($application->new_clock_in)->format('H:i');

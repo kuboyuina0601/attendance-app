@@ -24,7 +24,7 @@ class UpdateAttendanceRecordRequest extends FormRequest
                 'sometimes',
                 'required',
                 'date_format:Y-m-d',
-                Rule::unique('attendances', 'work_date')
+                Rule::unique('attendance_records', 'work_date')
                     ->where('user_id', $attendanceRecord?->user_id)
                     ->ignore($attendanceRecord?->id),
             ],

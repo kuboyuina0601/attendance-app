@@ -21,7 +21,7 @@ class AttendanceSeeder extends Seeder
         for ($i = 5; $i >= 1; $i--) {
             $month = $currentMonth->copy()->subMonths($i);
 
-            $this->createMonthlyAttendances($user1, $month, 15);
+            $this->createPatternAttendanceRecords($user1, $month, 15);
         }
 
         // user1：当月17日分
@@ -33,20 +33,20 @@ class AttendanceSeeder extends Seeder
             ['clock_in' => '08:00:00', 'clock_out' => '21:00:00', 'count' => 1],
         ];
 
-        $this->createPatternAttendances($user1, $currentMonth, $patterns);
+        $this->createPatternattendance_records($user1, $currentMonth, $patterns);
 
         // user2：当月を含む直近6か月分、各月15日
         for ($i = 5; $i >= 0; $i--) {
             $month = $currentMonth->copy()->subMonths($i);
 
-            $this->createMonthlyAttendances($user2, $month, 15);
+            $this->createPatternAttendanceRecords($user2, $month, 15);
         }
     }
 
     /**
      * 指定した月の平日分の通常勤務データを作成する
      */
-    private function createMonthlyAttendances(
+    private function createPatternAttendanceRecords(
         User $user,
         Carbon $month,
         int $count
@@ -73,7 +73,7 @@ class AttendanceSeeder extends Seeder
     /**
      * 指定した勤務パターンで当月分のデータを作成する
      */
-    private function createPatternAttendances(
+    private function createPatternattendance_records(
         User $user,
         Carbon $month,
         array $patterns

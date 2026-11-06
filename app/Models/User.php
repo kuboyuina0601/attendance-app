@@ -45,7 +45,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'admin_status' => 'boolean',
     ];
 
-    public function attendances()
+    public function attendance_records()
     {
         return $this->hasMany(Attendance::class);
     }

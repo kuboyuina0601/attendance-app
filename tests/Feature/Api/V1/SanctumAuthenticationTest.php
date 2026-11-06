@@ -164,7 +164,7 @@ class SanctumAuthenticationTest extends TestCase
         $response->assertCreated()
             ->assertJsonPath('data.user_id', $user->id);
 
-        $this->assertDatabaseHas('attendances', [
+        $this->assertDatabaseHas('attendance_records', [
             'user_id' => $user->id,
             'work_date' => '2026-10-01',
         ]);
@@ -184,7 +184,7 @@ class SanctumAuthenticationTest extends TestCase
         $response->assertUnauthorized()
             ->assertJsonPath(
                 'message',
-                '認証が必要です。'
+                'Unauthenticated.'
             );
     }
 
@@ -203,7 +203,7 @@ class SanctumAuthenticationTest extends TestCase
         $response->assertUnauthorized()
             ->assertJsonPath(
                 'message',
-                '認証が必要です。'
+                'Unauthenticated.'
             );
     }
 }

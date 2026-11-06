@@ -85,7 +85,7 @@ class AdminStampCorrectionApprovalTest extends TestCase
             'approval_status' => '承認済み',
         ]);
 
-        $this->assertDatabaseHas('attendances', [
+        $this->assertDatabaseHas('attendance_records', [
             'id' => $attendance->id,
             'clock_in' => '09:30:00',
             'clock_out' => '18:30:00',

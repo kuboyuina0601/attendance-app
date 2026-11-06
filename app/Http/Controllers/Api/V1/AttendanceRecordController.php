@@ -55,11 +55,11 @@ class AttendanceRecordController extends Controller
 
         $perPage = (int) $request->input('per_page', 20);
 
-        $attendances = $query
+        $attendance_records = $query
             ->orderByDesc('work_date')
             ->paginate($perPage);
 
-        return AttendanceRecordResource::collection($attendances);
+        return AttendanceRecordResource::collection($attendance_records);
     }
 
     /**
@@ -91,7 +91,7 @@ class AttendanceRecordController extends Controller
     ): JsonResponse {
         $validated = $request->validated();
 
-        $attendance = $request->user()->attendances()->create([
+        $attendance = $request->user()->attendance_records()->create([
             'work_date' => $validated['date'],
             'clock_in' => $validated['clock_in'],
             'clock_out' => $validated['clock_out'] ?? null,

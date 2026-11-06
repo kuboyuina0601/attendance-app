@@ -23,7 +23,7 @@ class AttendanceReportController extends Controller
         $endMonth = $currentMonth->copy()->endOfMonth();
 
         // ログインユーザーの過去6か月分の勤怠を取得
-        $attendances = Attendance::with('attendanceBreaks')
+        $attendance_records = Attendance::with('attendanceBreaks')
             ->where('user_id', $user->id)
             ->whereBetween('work_date', [
                 $startMonth->toDateString(),
@@ -56,7 +56,7 @@ class AttendanceReportController extends Controller
         $earlyLeaveCount = 0;
         $longWorkCount = 0;
 
-        $attendances->each(function (Attendance $attendance) use ($currentMonth, &$totalWorkMinutes, &$totalOvertimeMinutes, &$workedDays, &$monthlyTrend, &$lateCount, &$earlyLeaveCount, &$longWorkCount): void {
+        $attendance_records->each(function (Attendance $attendance) use ($currentMonth, &$totalWorkMinutes, &$totalOvertimeMinutes, &$workedDays, &$monthlyTrend, &$lateCount, &$earlyLeaveCount, &$longWorkCount): void {
             // 出勤・退勤の両方が記録された勤怠だけを集計
             if (!$attendance->clock_in || !$attendance->clock_out) {
                 return;
