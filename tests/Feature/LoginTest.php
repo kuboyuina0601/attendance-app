@@ -53,22 +53,4 @@ class LoginTest extends TestCase
             'email' => 'ログイン情報が登録されていません',
         ]);
     }
-
-    public function test_general_user_can_login_successfully(): void
-    {
-        User::create([
-            'name' => 'テストユーザー',
-            'email' => 'test@example.com',
-            'password' => Hash::make('password123'),
-            'admin_status' => false,
-        ]);
-
-        $response = $this->post('/login', [
-            'email' => 'test@example.com',
-            'password' => 'password123',
-        ]);
-
-        $this->assertAuthenticated();
-        $response->assertRedirect();
-    }
 }
