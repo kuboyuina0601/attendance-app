@@ -10,7 +10,7 @@
 
 ### ログイン情報
 
-<u>一般ユーザー</u>
+<ins>一般ユーザー</ins>
 <br>
 メールアドレス：user1@example.com
 パスワード：password
@@ -18,7 +18,7 @@
 メールアドレス：user2@example.com
 パスワード：password
 
-<u>管理者</u>
+<ins>管理者</ins>
 <br>
 メールアドレス：user3@example.com
 パスワード：password
