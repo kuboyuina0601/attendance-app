@@ -96,8 +96,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/attendance/{id}', [
         AdminAttendanceController::class,
         'update',
-    ])->whereNumber('id')
-        ->name('admin.attendance.update');
+        ])->whereNumber('id')
+            ->name('admin.attendance.update');
 
     // 管理者：スタッフ一覧
     Route::get('/admin/staff/list', [
@@ -120,27 +120,27 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // 管理者：修正申請承認画面
     Route::get(
-        '/stamp_correction_request/approve/{stamp_correction_request_id}',
+        '/stamp_correction_request/approve/{attendance_correct_request_id}',
         [
             AdminStampCorrectionRequestController::class,
             'show',
         ]
-    )->whereNumber('stamp_correction_request_id')
+    )->whereNumber('attendance_correct_request_id')
         ->name('admin.stamp-correction-request.show');
 
     // 管理者：修正申請承認処理
     Route::post(
-        '/stamp_correction_request/approve/{stamp_correction_request_id}',
+        '/stamp_correction_request/approve/{attendance_correct_request_id}',
         [
             AdminStampCorrectionRequestController::class,
             'update',
         ]
-    )->whereNumber('stamp_correction_request_id')
+    )->whereNumber('attendance_correct_request_id')
         ->name('admin.stamp-correction-request.update');
 });
 
 // 勤怠詳細：ログインユーザーの権限に応じて表示先を振り分ける
-Route::get('/attendance/{id}', function ($id) {
+Route::get('//attendance/{id}', function ($id) {
     $user = auth()->user();
 
     if ($user->admin_status) {

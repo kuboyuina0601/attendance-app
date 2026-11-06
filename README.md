@@ -4,9 +4,22 @@
 
 - 一般ユーザーログイン画面: `http://localhost/login`</br>
 - 管理者ログイン画面: `http://localhost/admin/login`</br>
-- 一般ユーザー勤怠画面:`http://localhost/attendance`
+- 一般ユーザー勤怠画面:`http://localhost/attendance`</br>
 - 管理者勤怠一覧画面:`http://localhost/admin/attendance/list`</br>
 - phpMyAdmin: `http://localhost:8080`</br>
+
+# ログイン情報
+
+一般ユーザー
+メールアドレス：user1@example.com
+パスワード：password
+
+メールアドレス：user2@example.com
+パスワード：password
+
+管理者
+メールアドレス：user3@example.com
+パスワード：password
 
 ## 作者
 
@@ -15,22 +28,22 @@
 ## 使用技術（環境・技術構成）
 
 - OS: Linux (Docker環境)
-- バックエンド: PHP 8.2 / Laravel 10.3
-- データベース: MySQL 8.0 / SQLite (テスト環境)
+- バックエンド: PHP 8.5.8 / Laravel 10.50.3
+- データベース: MySQL 8.4 / SQLite (テスト環境)
 - Webサーバー: Nginx
-- フロントエンド: Tailwind CSS 3.4.0
+- フロントエンド: Tailwind CSS 3.4.19
 - 開発ツール: Docker, Laravel Sail, phpMyAdmin, VS Code
 - バージョン管理: Git, GitHub
 
 ## 実装したAPIのエンドポイント一覧
 
-| メソッド | パス | 概要 | 認証 |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/attendance-records` | 勤怠一覧取得（検索・ページネーション対応） | 不要 |
-| `POST` | `/api/v1/attendance-records` | 勤怠情報の新規登録 | 必要（Sanctum） |
-| `GET` | `/api/v1/attendance-records/{attendanceRecord}` | 勤怠詳細取得 | 不要 |
-| `PUT` / `PATCH` | `/api/v1/attendance-records/{attendanceRecord}` | 勤怠情報の更新 | 必要（Sanctum） |
-| `DELETE` | `/api/v1/attendance-records/{attendanceRecord}` | 勤怠情報の削除 | 必要（Sanctum） |
+| メソッド        | パス                                            | 概要                                       | 認証            |
+| :-------------- | :---------------------------------------------- | :----------------------------------------- | :-------------- |
+| `GET`           | `/api/v1/attendance-records`                    | 勤怠一覧取得（検索・ページネーション対応） | 不要            |
+| `POST`          | `/api/v1/attendance-records`                    | 勤怠情報の新規登録                         | 必要（Sanctum） |
+| `GET`           | `/api/v1/attendance-records/{attendanceRecord}` | 勤怠詳細取得                               | 不要            |
+| `PUT` / `PATCH` | `/api/v1/attendance-records/{attendanceRecord}` | 勤怠情報の更新                             | 必要（Sanctum） |
+| `DELETE`        | `/api/v1/attendance-records/{attendanceRecord}` | 勤怠情報の削除                             | 必要（Sanctum） |
 
 ## 環境構築手順
 
