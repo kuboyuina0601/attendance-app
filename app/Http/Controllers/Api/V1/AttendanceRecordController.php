@@ -8,6 +8,7 @@ use App\Http\Requests\Api\V1\StoreAttendanceRecordRequest;
 use App\Http\Requests\Api\V1\UpdateAttendanceRecordRequest;
 use App\Http\Resources\AttendanceRecordResource;
 use App\Models\Attendance;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -27,7 +28,7 @@ class AttendanceRecordController extends Controller
         $query = Attendance::with('user')
             ->withSum(
                 [
-                    'attendanceBreaks as total_break_seconds' => function ($query) {
+                    'attendanceBreaks as total_break_seconds' => function (Builder $query): void {
                         $query->whereNotNull('break_in')
                             ->whereNotNull('break_out');
                     },

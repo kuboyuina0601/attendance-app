@@ -31,8 +31,7 @@ class AttendanceReportController extends Controller
         // 出勤・退勤の両方が記録された勤怠だけを抽出
         $completedAttendanceRecords = $attendanceRecords
             ->filter(
-                fn(Attendance $attendance): bool =>
-                    $attendance->clock_in && $attendance->clock_out
+                fn (Attendance $attendance): bool => $attendance->clock_in && $attendance->clock_out
             );
 
         // 勤怠データを集計用の形式に変換
@@ -44,15 +43,14 @@ class AttendanceReportController extends Controller
                 // 休憩時間の合計（秒）
                 $breakSeconds = $attendance->attendanceBreaks
                     ->filter(
-                        fn(AttendanceBreak $break): bool =>
-                            $break->break_in && $break->break_out
+                        fn (AttendanceBreak $break): bool => $break->break_in && $break->break_out
                     )
                     ->sum(function (AttendanceBreak $break): int {
-                    $breakIn = Carbon::parse($break->break_in);
-                    $breakOut = Carbon::parse($break->break_out);
+                        $breakIn = Carbon::parse($break->break_in);
+                        $breakOut = Carbon::parse($break->break_out);
 
-                    return $breakOut->diffInSeconds($breakIn);
-                });
+                        return $breakOut->diffInSeconds($breakIn);
+                    });
 
                 // 実労働時間（秒）
                 $workSeconds = max(
@@ -111,31 +109,27 @@ class AttendanceReportController extends Controller
         // 今月の異常検知回数
         $currentMonthRecords = $attendanceSummaries
             ->filter(
-                fn(array $record): bool =>
-                    $record['is_current_month']
+                fn (array $record): bool => $record['is_current_month']
             );
 
         // 09:00より後に出勤した場合は遅刻
         $lateCount = $currentMonthRecords
             ->filter(
-                fn(array $record): bool =>
-                    $record['clock_in'] > '09:00:00'
+                fn (array $record): bool => $record['clock_in'] > '09:00:00'
             )
             ->count();
 
         // 18:00より前に退勤した場合は早退
         $earlyLeaveCount = $currentMonthRecords
             ->filter(
-                fn(array $record): bool =>
-                    $record['clock_out'] < '18:00:00'
+                fn (array $record): bool => $record['clock_out'] < '18:00:00'
             )
             ->count();
 
         // 実労働時間が10時間を超えた場合は長時間労働
         $longWorkCount = $currentMonthRecords
             ->filter(
-                fn(array $record): bool =>
-                    $record['work_seconds'] > (10 * 60 * 60)
+                fn (array $record): bool => $record['work_seconds'] > (10 * 60 * 60)
             )
             ->count();
 

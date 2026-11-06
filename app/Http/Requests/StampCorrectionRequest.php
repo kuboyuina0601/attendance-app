@@ -85,7 +85,7 @@ class StampCorrectionRequest extends FormRequest
             $breakIns = $this->input('new_break_in', []);
             $breakOuts = $this->input('new_break_out', []);
 
-            if (!is_array($breakIns) || !is_array($breakOuts)) {
+            if (! is_array($breakIns) || ! is_array($breakOuts)) {
                 return;
             }
 
@@ -93,7 +93,6 @@ class StampCorrectionRequest extends FormRequest
                 array_keys($breakIns),
                 array_keys($breakOuts)
             ));
-
 
             collect($indexes)->each(function (int|string $index) use ($breakIns, $breakOuts, $timePattern, $validClockIn, $validClockOut, $clockIn, $clockOut, $validator): void {
                 $breakIn = $breakIns[$index] ?? null;
@@ -118,7 +117,7 @@ class StampCorrectionRequest extends FormRequest
                 $validBreakOut = is_string($breakOut)
                     && preg_match($timePattern, $breakOut) === 1;
 
-                if (!$validBreakIn || !$validBreakOut) {
+                if (! $validBreakIn || ! $validBreakOut) {
                     return;
                 }
 

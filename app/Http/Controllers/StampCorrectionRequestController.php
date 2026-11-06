@@ -59,7 +59,7 @@ class StampCorrectionRequestController extends Controller
             $breakOuts = $validated['new_break_out'] ?? [];
 
             collect($breakIns)->each(
-                function ($breakIn, $index) use ($breakOuts, $application): void {
+                function (mixed $breakIn, int|string $index) use ($breakOuts, $application): void {
                     $breakOut = $breakOuts[$index] ?? null;
 
                     if (blank($breakIn) && blank($breakOut)) {

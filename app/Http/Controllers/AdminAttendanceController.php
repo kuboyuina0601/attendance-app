@@ -48,7 +48,7 @@ class AdminAttendanceController extends Controller
             ->map(function (Attendance $attendance): Attendance {
                 $totalBreakSeconds = $attendance->attendanceBreaks
                     ->sum(function (AttendanceBreak $break): int {
-                        if (!$break->break_in || !$break->break_out) {
+                        if (! $break->break_in || ! $break->break_out) {
                             return 0;
                         }
 
@@ -103,7 +103,7 @@ class AdminAttendanceController extends Controller
 
         $user = $attendance->user;
 
-        abort_if(!$user || $user->admin_status, 404);
+        abort_if(! $user || $user->admin_status, 404);
 
         $application = StampCorrectionRequest::where('attendance_id', $id)
             ->where('approval_status', '承認待ち')
@@ -165,14 +165,14 @@ class AdminAttendanceController extends Controller
             'attendanceBreaks',
         ])->findOrFail($id);
 
-        abort_if(!$attendance->user || $attendance->user->admin_status, 404);
+        abort_if(! $attendance->user || $attendance->user->admin_status, 404);
 
         $hasPendingApplication = StampCorrectionRequest::where('attendance_id', $id)
             ->where('approval_status', '承認待ち')
             ->exists();
 
         if ($hasPendingApplication) {
-            return redirect('/admin/attendance/' . $attendance->id);
+            return redirect('/admin/attendance/'.$attendance->id);
         }
 
         $validated = $request->validated();
@@ -187,14 +187,6 @@ class AdminAttendanceController extends Controller
                 'clock_out' => $validated['new_clock_out'],
                 'comment' => $validated['comment'],
             ]);
-
-            $breakIns = $validated['new_break_in'] ?? [];
-            $breakOuts = $validated['new_break_out'] ?? [];
-
-            $existingBreaks = $attendance->attendanceBreaks()
-                ->orderBy('id')
-                ->get();
-
 
             $breakIns = $validated['new_break_in'] ?? [];
             $breakOuts = $validated['new_break_out'] ?? [];
@@ -242,7 +234,7 @@ class AdminAttendanceController extends Controller
                 ->delete();
         });
 
-        return redirect('/admin/attendance/' . $attendance->id);
+        return redirect('/admin/attendance/'.$attendance->id);
     }
 
     /**

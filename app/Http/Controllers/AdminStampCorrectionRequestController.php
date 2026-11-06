@@ -40,7 +40,7 @@ class AdminStampCorrectionRequestController extends Controller
                 END DESC
             ")
             ->get()
-            ->map(function ($application) {
+            ->map(function (StampCorrectionRequest $application): StampCorrectionRequest {
                 $application->user = $application->attendance->user;
 
                 $application->AttendanceRecord = (object) [
@@ -132,7 +132,7 @@ class AdminStampCorrectionRequestController extends Controller
             $attendance->attendanceBreaks()->delete();
 
             $application->stampCorrectionRequestBreaks->each(
-                function ($break) use ($attendance): void {
+                function (StampCorrectionRequestBreak $break) use ($attendance): void {
                     AttendanceBreak::create([
                         'attendance_id' => $attendance->id,
                         'break_in' => $break->new_break_in,

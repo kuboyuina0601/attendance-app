@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\AttendanceBreak;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -58,7 +59,7 @@ class AdminStaffAttendanceController extends Controller
 
             if ($attendance) {
                 $totalBreakSeconds = $attendance->attendanceBreaks
-                    ->sum(function ($break): int {
+                    ->sum(function (AttendanceBreak $break): int {
                         if (! $break->break_in || ! $break->break_out) {
                             return 0;
                         }
@@ -183,7 +184,7 @@ class AdminStaffAttendanceController extends Controller
 
                     if ($attendance) {
                         $totalBreakSeconds = $attendance->attendanceBreaks
-                            ->sum(function ($break): int {
+                            ->sum(function (AttendanceBreak $break): int {
                                 if (! $break->break_in || ! $break->break_out) {
                                     return 0;
                                 }
